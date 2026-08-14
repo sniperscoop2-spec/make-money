@@ -18,11 +18,11 @@ function renderMiningModules(){
   const icon=document.createElement('span');icon.className='mining-module-icon';icon.textContent=module.icon;
   const title=document.createElement('div');const name=document.createElement('strong');name.textContent=`Level ${level} · ${module.name}`;const description=document.createElement('small');description.textContent=module.description;title.append(name,description);identity.append(icon,title);
   const rate=document.createElement('strong');rate.className='mining-module-rate';rate.textContent=`${miningFormat(module.rate_per_hour)}/h`;top.append(identity,rate);card.append(top);
-  const meta=document.createElement('div');meta.className='mining-module-meta';const cost=document.createElement('span');cost.textContent=level===1?'Free':`Upgrade · ${miningFormat(module.cost)} MM`;const status=document.createElement('span');status.textContent=owned?(level===Number(current?.level)?'ACTIVE':'OWNED'):locked?'LOCKED':'NEXT MODULE';meta.append(cost,status);card.append(meta);
+  const meta=document.createElement('div');meta.className='mining-module-meta';const cost=document.createElement('span');cost.textContent=level===1?'Free':`Upgrade · ${miningFormat(module.cost)} MM`;const status=document.createElement('span');status.textContent=owned?(level===Number(current?.level)?'ACTIVE':'OWNED'):next?'NEXT MODULE':'';meta.append(cost,status);card.append(meta);
   const button=document.createElement('button');button.type='button';button.className='mining-module-button';
-  if(owned){button.textContent=level===Number(current?.level)?'Current module':'Unlocked';button.disabled=true;button.classList.add('secondary');}
+  if(owned){button.textContent=level===Number(current?.level)?'Current module':'Available';button.disabled=true;}
   else if(next){button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=miningBusy||Number(window.mmBalance||0)<Number(module.cost||0);button.onclick=()=>upgradeMiningModule(level);}
-  else{button.textContent='Locked';button.disabled=true;button.classList.add('secondary');}
+  else{button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=true;}
   card.append(button);list.append(card);
  }
 }
