@@ -4,11 +4,16 @@ const PAGE_TITLES={mining:'⛏️ Mining',jobs:'💼 Jobs',realEstate:'🏢 Real
 
 function navDisplay(el,visible){
   if(!el)return;
-  el.hidden=!visible;
-  el.setAttribute('aria-hidden',String(!visible));
-  el.style.setProperty('display',visible?'':'none','important');
-  el.style.setProperty('visibility',visible?'':'hidden','important');
-  el.style.setProperty('pointer-events',visible?'':'none','important');
+  const hidden=!visible;
+  if(el.hidden!==hidden)el.hidden=hidden;
+  const aria=String(hidden);
+  if(el.getAttribute('aria-hidden')!==aria)el.setAttribute('aria-hidden',aria);
+  const display=visible?'':'none';
+  if(el.style.getPropertyValue('display')!==display)el.style.setProperty('display',display,'important');
+  const visibility=visible?'':'hidden';
+  if(el.style.getPropertyValue('visibility')!==visibility)el.style.setProperty('visibility',visibility,'important');
+  const pointer=visible?'':'none';
+  if(el.style.getPropertyValue('pointer-events')!==pointer)el.style.setProperty('pointer-events',pointer,'important');
 }
 
 function navSetPage(page){
@@ -18,8 +23,6 @@ function navSetPage(page){
   document.documentElement.dataset.mmPage=valid;
   document.body.dataset.mmPage=valid;
 
-  // Use ALL matching elements, not only getElementById(). This protects the
-  // Mini App if another module ever creates a duplicate menu node.
   document.querySelectorAll('.home-menu').forEach(el=>navDisplay(el,valid==='home'&&authenticated));
   document.querySelectorAll('.profile').forEach(el=>navDisplay(el,valid==='home'&&authenticated));
   navDisplay(document.getElementById('statusCard'),!authenticated);
@@ -29,11 +32,9 @@ function navSetPage(page){
     document.querySelectorAll(`#${id}`).forEach(el=>navDisplay(el,valid===id&&authenticated));
   }
 
-  if(valid!=='home'){
-    // Absolute isolation: no Home menu/card can remain in the active category.
-    document.querySelectorAll('.home-menu,.profile').forEach(el=>navDisplay(el,false));
-    document.querySelectorAll('.page-section').forEach(el=>navDisplay(el,el.id===valid&&authenticated));
-  }
+  // Absolute isolation: only the selected category is allowed to occupy the page.
+  document.querySelectorAll('.page-section').forEach(el=>navDisplay(el,valid===el.id&&authenticated));
+  if(valid!=='home')document.querySelectorAll('.home-menu,.profile').forEach(el=>navDisplay(el,false));
 
   const title=document.getElementById('pageTitle');
   if(title)title.textContent=valid==='home'?'MAKE MONEY':PAGE_TITLES[valid];
@@ -62,15 +63,13 @@ function navInit(){
     navSetPage('home');
   },true);
 
-  // Guard against another script or WebView changing visibility after routing.
-  const observer=new MutationObserver(()=>{
-    if(navCurrent==='home')return;
-    const authenticated=Boolean(window.mmSessionToken);
-    if(!authenticated)return;
-    document.querySelectorAll('.home-menu,.profile').forEach(el=>navDisplay(el,false));
-    document.querySelectorAll('.page-section').forEach(el=>navDisplay(el,el.id===navCurrent));
+  // If a module injects another menu/page later, enforce the current route.
+  const observer=new MutationObserver(mutations=>{
+    if(navCurrent==='home'||!window.mmSessionToken)return;
+    if(!mutations.some(m=>m.type==='childList'))return;
+    navSetPage(navCurrent);
   });
-  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','style','class']});
+  observer.observe(document.body,{subtree:true,childList:true});
 
   navSetPage('home');
 }
