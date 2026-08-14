@@ -11,7 +11,7 @@ function renderMiningModules(){
  const list=document.getElementById('miningModules'),summary=document.getElementById('miningModuleSummary');if(!list)return;list.replaceChildren();
  const current=miningCurrent();if(summary&&current)summary.textContent=`${current.name} · ${miningFormat(current.rate_per_hour)} MM/h`;
  for(const module of miningModules){
-  const level=Number(module.level),owned=Boolean(module.owned),next=Number(current?.level||1)+1===level,locked=!owned&&!next;
+  const level=Number(module.level),owned=Boolean(module.owned),next=Number(current?.level||1)+1===level,canBuy=next&&!owned&&Number(window.mmBalance||0)>=Number(module.cost||0),locked=!owned&&!next;
   const card=document.createElement('div');card.className=`mining-module${owned?' active':''}${locked?' locked':''}`;
   const top=document.createElement('div');top.className='mining-module-top';
   const identity=document.createElement('div');identity.className='mining-module-identity';
@@ -21,8 +21,7 @@ function renderMiningModules(){
   const meta=document.createElement('div');meta.className='mining-module-meta';const cost=document.createElement('span');cost.textContent=level===1?'Free':`Upgrade · ${miningFormat(module.cost)} MM`;const status=document.createElement('span');status.textContent=owned?(level===Number(current?.level)?'ACTIVE':'OWNED'):next?'NEXT MODULE':'';meta.append(cost,status);card.append(meta);
   const button=document.createElement('button');button.type='button';button.className='mining-module-button';
   if(owned){button.textContent=level===Number(current?.level)?'Current module':'Available';button.disabled=true;}
-  else if(next){button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=miningBusy||Number(window.mmBalance||0)<Number(module.cost||0);button.onclick=()=>upgradeMiningModule(level);}
-  else{button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=true;}
+  else{button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=miningBusy||!canBuy||locked;if(canBuy)button.onclick=()=>upgradeMiningModule(level);}
   card.append(button);list.append(card);
  }
 }
