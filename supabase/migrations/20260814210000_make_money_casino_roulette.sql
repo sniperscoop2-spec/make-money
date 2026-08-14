@@ -2,6 +2,18 @@ begin;
 
 create extension if not exists pgcrypto;
 
+create table if not exists public.make_money_casino_daily (
+  player_id uuid primary key references public.make_money_players(id) on delete cascade,
+  wager_day date not null default current_date,
+  wagered_today numeric(30,4) not null default 0 check (wagered_today >= 0),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists make_money_casino_daily_day_idx
+  on public.make_money_casino_daily(wager_day);
+
+alter table public.make_money_casino_daily enable row level security;
+
 create table if not exists public.make_money_casino_spins (
   id uuid primary key default gen_random_uuid(),
   player_id uuid not null references public.make_money_players(id) on delete cascade,
@@ -82,19 +94,27 @@ begin
     raise exception 'invalid_or_expired_session';
   end if;
 
+  -- Serialize identical operations so a retry cannot ever double-charge the player.
+  perform pg_advisory_xact_lock(hashtextextended(v_player_id::text || ':' || p_operation_key, 0));
+
   select * into v_existing
   from public.make_money_casino_spins
   where player_id = v_player_id and operation_key = p_operation_key
   limit 1;
 
   if found then
+    select coalesce(d.wagered_today,0)
+      into v_wagered
+    from public.make_money_casino_daily d
+    where d.player_id = v_player_id
+      and d.wager_day = current_date;
     return query select v_existing.result_number::integer,
       v_existing.result_color,
       (v_existing.payout > 0),
       v_existing.payout,
       (v_existing.payout - v_existing.bet),
       v_existing.balance_after,
-      0::numeric,
+      coalesce(v_wagered,0),
       v_daily_limit;
     return;
   end if;
@@ -127,7 +147,7 @@ begin
   if v_wager_day <> current_date then
     v_wagered := 0;
     update public.make_money_casino_daily
-      set wager_day = current_date, wagered_today = 0
+      set wager_day = current_date, wagered_today = 0, updated_at = now()
     where player_id = v_player_id;
   end if;
 
@@ -158,7 +178,7 @@ begin
   where id = v_player_id;
 
   update public.make_money_casino_daily
-  set wagered_today = v_wagered + v_bet
+  set wagered_today = v_wagered + v_bet, updated_at = now()
   where player_id = v_player_id;
 
   insert into public.make_money_casino_spins(
@@ -173,18 +193,6 @@ begin
     (v_payout - v_bet), v_balance_after, v_wagered + v_bet, v_daily_limit;
 end;
 $$;
-
-create table if not exists public.make_money_casino_daily (
-  player_id uuid primary key references public.make_money_players(id) on delete cascade,
-  wager_day date not null default current_date,
-  wagered_today numeric(30,4) not null default 0 check (wagered_today >= 0),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists make_money_casino_daily_day_idx
-  on public.make_money_casino_daily(wager_day);
-
-alter table public.make_money_casino_daily enable row level security;
 
 revoke all on function public.make_money_casino_roulette(text,numeric,text,text) from public, anon, authenticated;
 grant execute on function public.make_money_casino_roulette(text,numeric,text,text) to service_role;
