@@ -63,9 +63,11 @@ declare
   v_color text;
   v_won boolean;
   v_payout numeric(20,0);
+  v_net_change numeric(20,0);
   v_balance_after numeric(30,4);
   v_existing record;
-  v_random bytea;
+  v_random bigint;
+  v_limit bigint := 4294967295 - (4294967296 % 37);
   v_daily_limit constant numeric := 1000;
 begin
   if p_session_hash is null or p_session_hash !~ '^[0-9a-f]{64}$' then
@@ -94,7 +96,8 @@ begin
     raise exception 'invalid_or_expired_session';
   end if;
 
-  -- Serialize identical operations so a retry cannot ever double-charge the player.
+  -- Serialize the exact operation key. This closes the concurrent-retry race
+  -- where two identical requests could both pass the first idempotency check.
   perform pg_advisory_xact_lock(hashtextextended(v_player_id::text || ':' || p_operation_key, 0));
 
   select * into v_existing
@@ -108,6 +111,7 @@ begin
     from public.make_money_casino_daily d
     where d.player_id = v_player_id
       and d.wager_day = current_date;
+
     return query select v_existing.result_number::integer,
       v_existing.result_color,
       (v_existing.payout > 0),
@@ -155,11 +159,12 @@ begin
     raise exception 'daily_wager_limit_reached';
   end if;
 
-  v_random := gen_random_bytes(4);
-  v_result := ((get_byte(v_random,0)::bigint << 24)
-             + (get_byte(v_random,1)::bigint << 16)
-             + (get_byte(v_random,2)::bigint << 8)
-             + get_byte(v_random,3)::bigint) % 37;
+  -- Rejection sampling removes the tiny modulo bias from a raw uint32 % 37.
+  loop
+    v_random := floor(random() * 4294967296)::bigint;
+    exit when v_random < v_limit;
+  end loop;
+  v_result := mod(v_random,37)::integer;
 
   if v_result = 0 then
     v_color := 'green';
@@ -171,7 +176,8 @@ begin
 
   v_won := v_color = p_choice;
   v_payout := case when v_won then v_bet * 2 else 0 end;
-  v_balance_after := v_balance - v_bet + v_payout;
+  v_net_change := v_payout - v_bet;
+  v_balance_after := v_balance + v_net_change;
 
   update public.make_money_players
   set balance = v_balance_after, updated_at = now()
@@ -189,8 +195,28 @@ begin
     v_payout, v_balance_after
   );
 
+  insert into public.make_money_transactions(
+    player_id, type, amount, balance_before, balance_after, reference, metadata
+  ) values (
+    v_player_id,
+    'casino_roulette',
+    v_net_change,
+    v_balance,
+    v_balance_after,
+    p_operation_key,
+    jsonb_build_object(
+      'game','roulette',
+      'bet',v_bet,
+      'choice',p_choice,
+      'result_number',v_result,
+      'result_color',v_color,
+      'payout',v_payout,
+      'house_edge',1.0/37.0
+    )
+  );
+
   return query select v_result, v_color, v_won, v_payout,
-    (v_payout - v_bet), v_balance_after, v_wagered + v_bet, v_daily_limit;
+    v_net_change, v_balance_after, v_wagered + v_bet, v_daily_limit;
 end;
 $$;
 
