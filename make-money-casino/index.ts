@@ -7,6 +7,7 @@ function serverKey(){const raw=Deno.env.get("SUPABASE_SECRET_KEYS");if(raw){try{
 async function rpc(name:string,args:Record<string,unknown>){const url=Deno.env.get("SUPABASE_URL");const key=serverKey();if(!url||!key)throw new Error("server_credentials_unavailable");const response=await fetch(`${url}/rest/v1/rpc/${name}`,{method:"POST",headers:{apikey:key,Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify(args)});const text=await response.text();if(!response.ok)throw new Error(text||`rpc_${response.status}`);return text?JSON.parse(text):null;}
 function operationKey(value:unknown){return typeof value==="string"&&/^[A-Za-z0-9_-]{16,128}$/.test(value)?value:"";}
 function numberBet(value:unknown){const n=Number(value);return Number.isInteger(n)&&n>=10&&n<=100?n:null;}
+function rouletteChoice(value:unknown){if(typeof value!=="string")return false;if(/^(red|black|odd|even|low|high|dozen[1-3]|column[1-3])$/.test(value))return true;return /^number-(?:0|[1-9]|[1-2][0-9]|3[0-6])$/.test(value);}
 function first(result:any){return Array.isArray(result)?result[0]:result;}
 
 Deno.serve(async req=>{
@@ -16,34 +17,28 @@ Deno.serve(async req=>{
   const authorization=req.headers.get("authorization")??"";if(!authorization.startsWith("Bearer "))return json({ok:false,error:"UNAUTHORIZED"},401);
   const token=authorization.slice(7).trim();if(token.length<40||token.length>256)return json({ok:false,error:"UNAUTHORIZED"},401);
   const body=await req.json().catch(()=>({}));const action=typeof body?.action==="string"?body.action:"";const sessionHash=await sha256Hex(token);
-
   if(action==="status"){
    const row=first(await rpc("make_money_casino_status",{p_session_hash:sessionHash}));
    return json({ok:true,balance:Number(row?.balance??0),wagered_today:Number(row?.wagered_today??0),daily_wager_limit:Number(row?.daily_wager_limit??1000),house_edge:1/37,active_blackjack:row?.active_blackjack??null});
   }
-
   if(action==="roulette"){
-   const bet=numberBet(body?.bet);const choice=typeof body?.choice==="string"?body.choice:"";const key=operationKey(body?.operation_key);if(bet===null)throw new Error("invalid_bet");if(!["red","black","zero","odd","even"].includes(choice))throw new Error("invalid_choice");if(!key)throw new Error("invalid_operation_key");
+   const bet=numberBet(body?.bet);const choice=body?.choice;const key=operationKey(body?.operation_key);
+   if(bet===null)throw new Error("invalid_bet");if(!rouletteChoice(choice))throw new Error("invalid_choice");if(!key)throw new Error("invalid_operation_key");
    const row=first(await rpc("make_money_casino_roulette",{p_session_hash:sessionHash,p_bet:bet,p_choice:choice,p_operation_key:key}));
    return json({ok:true,game:"roulette",result_number:Number(row?.result_number??0),result_color:row?.result_color??"green",won:Boolean(row?.won),payout:Number(row?.payout??0),net_change:Number(row?.net_change??0),balance:Number(row?.balance??0),wagered_today:Number(row?.wagered_today??0),daily_wager_limit:Number(row?.daily_wager_limit??1000),house_edge:1/37});
   }
-
   if(action==="slots"){
    const bet=numberBet(body?.bet);const key=operationKey(body?.operation_key);if(bet===null)throw new Error("invalid_bet");if(!key)throw new Error("invalid_operation_key");
-   const row=await rpc("make_money_casino_slots",{p_session_hash:sessionHash,p_bet:bet,p_operation_key:key});
-   return json({ok:true,...first(row)});
+   const row=await rpc("make_money_casino_slots",{p_session_hash:sessionHash,p_bet:bet,p_operation_key:key});return json({ok:true,...first(row)});
   }
-
   if(action==="blackjack_start"){
    const bet=numberBet(body?.bet);const key=operationKey(body?.operation_key);if(bet===null)throw new Error("invalid_bet");if(!key)throw new Error("invalid_operation_key");
    const row=await rpc("make_money_casino_blackjack_start",{p_session_hash:sessionHash,p_bet:bet,p_operation_key:key});return json({ok:true,...first(row)});
   }
-
   if(action==="blackjack_action"){
    const roundId=typeof body?.round_id==="string"?body.round_id:"";const blackjackAction=typeof body?.blackjack_action==="string"?body.blackjack_action:"";const key=operationKey(body?.operation_key);if(!/^[0-9a-f-]{36}$/i.test(roundId))throw new Error("blackjack_round_not_found");if(blackjackAction!=="hit"&&blackjackAction!=="stand")throw new Error("invalid_blackjack_action");if(!key)throw new Error("invalid_operation_key");
    const row=await rpc("make_money_casino_blackjack_action",{p_session_hash:sessionHash,p_round_id:roundId,p_action:blackjackAction,p_operation_key:key});return json({ok:true,...first(row)});
   }
-
   return json({ok:false,error:"INVALID_ACTION"},400);
  }catch(error){
   const message=error instanceof Error?error.message:String(error);
