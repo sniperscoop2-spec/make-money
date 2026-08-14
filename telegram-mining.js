@@ -2,100 +2,32 @@ const MINING_MODULES_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/
 let miningModules=[];
 let miningBusy=false;
 const miningOriginalFetch=window.fetch.bind(window);
-
-function miningSessionValid(){
-  return Boolean(window.mmSessionToken&&Date.now()<Number(window.mmSessionExpiresAt||0));
-}
-function miningOperationKey(){
-  if(window.crypto?.randomUUID)return window.crypto.randomUUID().replace(/-/g,'');
-  const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);
-  return Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');
-}
+function miningSessionValid(){return Boolean(window.mmSessionToken&&Date.now()<Number(window.mmSessionExpiresAt||0));}
+function miningOperationKey(){if(window.crypto?.randomUUID)return window.crypto.randomUUID().replace(/-/g,'');const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);return Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');}
 function miningFormat(value){return Number(value||0).toLocaleString('en-US',{maximumFractionDigits:4});}
-async function miningFetch(body){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),15000);
-  try{
-    return await miningOriginalFetch(MINING_MODULES_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${window.mmSessionToken}`},body:JSON.stringify(body),cache:'no-store',signal:controller.signal});
-  }finally{clearTimeout(timer);}
-}
+async function miningFetch(body){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);try{return await miningOriginalFetch(MINING_MODULES_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${window.mmSessionToken}`},body:JSON.stringify(body),cache:'no-store',signal:controller.signal});}finally{clearTimeout(timer);}}
+function miningCurrent(){return miningModules.reduce((best,x)=>Number(x.level)>Number(best?.level||0)&&x.owned?x:best,null)||miningModules.find(x=>Number(x.level)===1)||null;}
 function renderMiningModules(){
-  const list=document.getElementById('miningModules');
-  const summary=document.getElementById('miningModuleSummary');
-  if(!list)return;
-  list.replaceChildren();
-  const current=miningModules.find(x=>x.owned)||miningModules.find(x=>Number(x.level)===1);
-  if(summary&&current)summary.textContent=`${current.name} · ${miningFormat(current.rate_per_hour)} MM/h`;
-  for(const module of miningModules){
-    const level=Number(module.level);
-    const owned=Boolean(module.owned);
-    const unlocked=owned;
-    const next=Number(current?.level||1)+1===level;
-    const locked=!owned&&!next;
-    const card=document.createElement('div');
-    card.className=`mining-module${owned?' active':''}${locked?' locked':''}`;
-    const top=document.createElement('div');top.className='mining-module-top';
-    const identity=document.createElement('div');identity.className='mining-module-identity';
-    const icon=document.createElement('span');icon.className='mining-module-icon';icon.textContent=module.icon;
-    const title=document.createElement('div');
-    const name=document.createElement('strong');name.textContent=`Level ${level} · ${module.name}`;
-    const description=document.createElement('small');description.textContent=module.description;
-    title.append(name,description);identity.append(icon,title);
-    const rate=document.createElement('strong');rate.className='mining-module-rate';rate.textContent=`${miningFormat(module.rate_per_hour)}/h`;
-    top.append(identity,rate);card.append(top);
-    const meta=document.createElement('div');meta.className='mining-module-meta';
-    const cost=document.createElement('span');cost.textContent=level===1?'Free':`Upgrade · ${miningFormat(module.cost)} MM`;
-    const status=document.createElement('span');status.textContent=owned?'ACTIVE':locked?'LOCKED':`NEXT MODULE`;
-    meta.append(cost,status);card.append(meta);
-    const button=document.createElement('button');button.type='button';button.className='mining-module-button';
-    if(owned){button.textContent='Current module';button.disabled=true;button.classList.add('secondary');}
-    else if(next){
-      button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;
-      button.disabled=miningBusy||Number(window.mmBalance||0)<Number(module.cost||0);
-      button.onclick=()=>upgradeMiningModule(level);
-    }else{
-      button.textContent='Locked';button.disabled=true;button.classList.add('secondary');
-    }
-    card.append(button);list.append(card);
-  }
+ const list=document.getElementById('miningModules'),summary=document.getElementById('miningModuleSummary');if(!list)return;list.replaceChildren();
+ const current=miningCurrent();if(summary&&current)summary.textContent=`${current.name} · ${miningFormat(current.rate_per_hour)} MM/h`;
+ for(const module of miningModules){
+  const level=Number(module.level),owned=Boolean(module.owned),next=Number(current?.level||1)+1===level,locked=!owned&&!next;
+  const card=document.createElement('div');card.className=`mining-module${owned?' active':''}${locked?' locked':''}`;
+  const top=document.createElement('div');top.className='mining-module-top';
+  const identity=document.createElement('div');identity.className='mining-module-identity';
+  const icon=document.createElement('span');icon.className='mining-module-icon';icon.textContent=module.icon;
+  const title=document.createElement('div');const name=document.createElement('strong');name.textContent=`Level ${level} · ${module.name}`;const description=document.createElement('small');description.textContent=module.description;title.append(name,description);identity.append(icon,title);
+  const rate=document.createElement('strong');rate.className='mining-module-rate';rate.textContent=`${miningFormat(module.rate_per_hour)}/h`;top.append(identity,rate);card.append(top);
+  const meta=document.createElement('div');meta.className='mining-module-meta';const cost=document.createElement('span');cost.textContent=level===1?'Free':`Upgrade · ${miningFormat(module.cost)} MM`;const status=document.createElement('span');status.textContent=owned?(level===Number(current?.level)?'ACTIVE':'OWNED'):locked?'LOCKED':'NEXT MODULE';meta.append(cost,status);card.append(meta);
+  const button=document.createElement('button');button.type='button';button.className='mining-module-button';
+  if(owned){button.textContent=level===Number(current?.level)?'Current module':'Unlocked';button.disabled=true;button.classList.add('secondary');}
+  else if(next){button.textContent=`Unlock · ${miningFormat(module.cost)} MM`;button.disabled=miningBusy||Number(window.mmBalance||0)<Number(module.cost||0);button.onclick=()=>upgradeMiningModule(level);}
+  else{button.textContent='Locked';button.disabled=true;button.classList.add('secondary');}
+  card.append(button);list.append(card);
+ }
 }
-async function loadMiningModules(){
-  if(!miningSessionValid())return;
-  try{
-    const r=await miningFetch({action:'status'});
-    const data=await r.json().catch(()=>null);
-    if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);
-    miningModules=Array.isArray(data.mining)?data.mining.map(x=>({...x,level:Number(x.level||0),cost:Number(x.cost||0),rate_per_hour:Number(x.rate_per_hour||0),owned:Boolean(x.owned)})):[];
-    renderMiningModules();
-  }catch(e){
-    const summary=document.getElementById('miningModuleSummary');
-    if(summary)summary.textContent=e.name==='AbortError'?'Timeout':'Unavailable';
-  }
-}
-async function upgradeMiningModule(level){
-  if(miningBusy||!miningSessionValid())return;
-  const module=miningModules.find(x=>Number(x.level)===Number(level));
-  if(!module)return;
-  miningBusy=true;renderMiningModules();
-  const status=document.getElementById('miningStatus');
-  if(status)status.textContent=`Unlocking ${module.name} securely...`;
-  try{
-    const r=await miningFetch({action:'upgrade',level:Number(level),operation_key:miningOperationKey()});
-    const data=await r.json().catch(()=>null);
-    if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);
-    const balance=Number(data.balance||0);
-    const balanceEl=document.getElementById('balance');
-    if(balanceEl)balanceEl.textContent=miningFormat(balance);
-    window.mmBalance=balance;
-    window.dispatchEvent(new CustomEvent('make-money-balance-updated',{detail:{balance}}));
-    if(status)status.textContent=`${module.name} unlocked. Production is now ${miningFormat(data.rate_per_hour)} MM/hour.`;
-    await loadMiningModules();
-  }catch(e){
-    const messages={INSUFFICIENT_BALANCE:'Not enough MM.',INVALID_MINING_UPGRADE:'Unlock the modules in order.',MINING_MODULE_NOT_FOUND:'Mining module unavailable.',OPERATION_REUSED:'This operation was already processed.',SESSION_EXPIRED:'Session expired. Reopen the Mini App.'};
-    if(status)status.textContent=messages[e.message]||`Mining upgrade failed (${e.message}).`;
-  }finally{miningBusy=false;renderMiningModules();}
-}
+async function loadMiningModules(){if(!miningSessionValid())return;try{const r=await miningFetch({action:'status'});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);miningModules=Array.isArray(data.mining)?data.mining.map(x=>({...x,level:Number(x.level||0),cost:Number(x.cost||0),rate_per_hour:Number(x.rate_per_hour||0),owned:Boolean(x.owned)})):[];renderMiningModules();}catch(e){const summary=document.getElementById('miningModuleSummary');if(summary)summary.textContent=e.name==='AbortError'?'Timeout':'Unavailable';}}
+async function upgradeMiningModule(level){if(miningBusy||!miningSessionValid())return;const module=miningModules.find(x=>Number(x.level)===Number(level));if(!module)return;miningBusy=true;renderMiningModules();const status=document.getElementById('miningStatus');if(status)status.textContent=`Unlocking ${module.name} securely...`;try{const r=await miningFetch({action:'upgrade',level:Number(level),operation_key:miningOperationKey()});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);const balance=Number(data.balance||0);const balanceEl=document.getElementById('balance');if(balanceEl)balanceEl.textContent=miningFormat(balance);window.mmBalance=balance;window.dispatchEvent(new CustomEvent('make-money-balance-updated',{detail:{balance}}));if(status)status.textContent=`${module.name} unlocked. Production is now ${miningFormat(data.rate_per_hour)} MM/hour.`;await loadMiningModules();}catch(e){const messages={INSUFFICIENT_BALANCE:'Not enough MM.',INVALID_MINING_UPGRADE:'Unlock the modules in order.',MINING_MODULE_NOT_FOUND:'Mining module unavailable.',OPERATION_REUSED:'This operation was already processed.',SESSION_EXPIRED:'Session expired. Reopen the Mini App.'};if(status)status.textContent=messages[e.message]||`Mining upgrade failed (${e.message}).`;}finally{miningBusy=false;renderMiningModules();}}
 window.addEventListener('make-money-authenticated',()=>loadMiningModules());
 window.addEventListener('make-money-balance-updated',()=>renderMiningModules());
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if(miningSessionValid())loadMiningModules();});
-else if(miningSessionValid())loadMiningModules();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if(miningSessionValid())loadMiningModules();});else if(miningSessionValid())loadMiningModules();
