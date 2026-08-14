@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080c13">
 <title>Make Money</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="telegram.css?v=20260814-2">
+<link rel="stylesheet" href="telegram.css?v=20260814-3">
 </head>
 <body>
 <main class="app">
@@ -47,7 +47,30 @@
     <div class="ranking-list" id="rankingList"></div>
   </section>
 </main>
-<script src="telegram-real-estate.js?v=20260814-2"></script>
-<script src="telegram-app.js?v=20260814-2"></script>
+<script src="telegram-real-estate.js?v=20260814-3"></script>
+<script src="telegram-app.js?v=20260814-3"></script>
+<script>
+(function(){
+  function lockUnaffordableProperties(){
+    const balance=Number((document.getElementById('balance')?.textContent||'0').replace(/[^0-9.-]/g,''));
+    document.querySelectorAll('#realEstateList .property-row').forEach(row=>{
+      const button=row.querySelector('button');
+      const priceText=row.querySelector('.property-meta span');
+      if(!button||!priceText||button.textContent.startsWith('Claim'))return;
+      const price=Number(priceText.textContent.replace(/[^0-9.-]/g,''));
+      if(Number.isFinite(price)&&Number.isFinite(balance)&&balance<price){
+        button.disabled=true;
+        button.classList.add('secondary');
+        button.textContent=`Locked · ${price.toLocaleString('en-US')} MM`;
+      }
+    });
+  }
+  const list=document.getElementById('realEstateList');
+  if(list)new MutationObserver(lockUnaffordableProperties).observe(list,{childList:true,subtree:true});
+  const balance=document.getElementById('balance');
+  if(balance)new MutationObserver(lockUnaffordableProperties).observe(balance,{childList:true,characterData:true,subtree:true});
+  window.setTimeout(lockUnaffordableProperties,500);
+})();
+</script>
 </body>
 </html>
