@@ -1,4 +1,4 @@
-const MARKET_API='https://klvpeoziausjvefaek.supabase.co/functions/v1/make-money-crypto-market';
+const MARKET_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-crypto-market';
 let marketBusy=false,marketAssets=[],marketHoldings={},marketSelected='BITX',marketTimer=null;
 const marketFetch=(body)=>{const token=window.mmSessionToken;const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);return fetch(MARKET_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify(body),cache:'no-store',signal:c.signal}).finally(()=>clearTimeout(t));};
 const marketKey=()=>window.crypto?.randomUUID?crypto.randomUUID().replace(/-/g,''):Array.from(crypto.getRandomValues(new Uint8Array(24)),x=>x.toString(16).padStart(2,'0')).join('');
