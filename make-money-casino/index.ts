@@ -23,7 +23,7 @@ Deno.serve(async req=>{
   }
 
   if(action==="roulette"){
-   const bet=numberBet(body?.bet);const choice=typeof body?.choice==="string"?body.choice:"";const key=operationKey(body?.operation_key);if(bet===null)throw new Error("invalid_bet");if(choice!=="red"&&choice!=="black")throw new Error("invalid_choice");if(!key)throw new Error("invalid_operation_key");
+   const bet=numberBet(body?.bet);const choice=typeof body?.choice==="string"?body.choice:"";const key=operationKey(body?.operation_key);if(bet===null)throw new Error("invalid_bet");if(!["red","black","zero","odd","even"].includes(choice))throw new Error("invalid_choice");if(!key)throw new Error("invalid_operation_key");
    const row=first(await rpc("make_money_casino_roulette",{p_session_hash:sessionHash,p_bet:bet,p_choice:choice,p_operation_key:key}));
    return json({ok:true,game:"roulette",result_number:Number(row?.result_number??0),result_color:row?.result_color??"green",won:Boolean(row?.won),payout:Number(row?.payout??0),net_change:Number(row?.net_change??0),balance:Number(row?.balance??0),wagered_today:Number(row?.wagered_today??0),daily_wager_limit:Number(row?.daily_wager_limit??1000),house_edge:1/37});
   }
