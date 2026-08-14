@@ -6,77 +6,22 @@
 <meta name="theme-color" content="#080c13">
 <title>Make Money</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="telegram.css?v=20260814-10">
+<link rel="stylesheet" href="telegram.css?v=20260814-11">
 </head>
 <body>
 <main class="app">
   <div class="brand">MAKE MONEY</div>
-  <div class="card" id="statusCard">
-    <div id="spinner" class="spinner"></div>
-    <h1 id="title">Connecting...</h1>
-    <p id="message">Checking your Telegram identity securely.</p>
-  </div>
-  <section class="profile card" id="profile" hidden>
-    <div class="avatar" id="avatar">*</div>
-    <h2 id="name">Player</h2>
-    <p id="username"></p>
-    <div class="balance"><strong id="balance">0</strong> MM</div>
-    <div class="badge">Telegram account verified</div>
-  </section>
-  <section class="mining card" id="mining" hidden>
-    <div class="section-title">⛏️ Mining</div>
-    <p id="miningStatus">Your miner is ready.</p>
-    <div class="mining-stat"><span>Available</span><strong id="miningReward">0 MM</strong></div>
-    <div class="mining-stat"><span>Next claim</span><strong id="nextClaim">Ready</strong></div>
-    <button id="claimMining" type="button">Claim MM</button>
-    <div class="mining-modules-head">
-      <strong>Mining Modules</strong>
-      <span id="miningModuleSummary">Loading...</span>
-    </div>
-    <div class="mining-modules" id="miningModules"></div>
-  </section>
-  <section class="jobs card" id="jobs" hidden>
-    <div class="section-title">💼 Jobs</div>
-    <p id="jobsStatus">Loading jobs securely...</p>
-    <div class="active-job" id="activeJob" hidden></div>
-    <div class="jobs-list" id="jobsList"></div>
-  </section>
-  <section class="real-estate card" id="realEstate" hidden>
-    <div class="section-title">🏢 Real Estate</div>
-    <p id="realEstateStatus">Loading properties securely...</p>
-    <div class="real-estate-list" id="realEstateList"></div>
-  </section>
-  <section class="casino card" id="casino" hidden>
-    <div class="section-title">🎰 Casino</div>
-    <p id="casinoStatus">Virtual MM only. Server-side roulette.</p>
-    <div class="mining-stat"><span>Daily wagered</span><strong id="casinoWagered">0 / 1,000 MM</strong></div>
-    <div class="mining-stat"><span>House edge</span><strong>2.70%</strong></div>
-    <div>
-      <strong>Bet</strong>
-      <div id="casinoBets">
-        <button type="button" data-bet="10">10 MM</button>
-        <button type="button" data-bet="25">25 MM</button>
-        <button type="button" data-bet="50">50 MM</button>
-        <button type="button" data-bet="100">100 MM</button>
-      </div>
-    </div>
-    <div>
-      <strong>Choose</strong>
-      <div id="casinoChoices">
-        <button type="button" data-choice="red">Red</button>
-        <button type="button" data-choice="black">Black</button>
-      </div>
-    </div>
-  </section>
-  <section class="ranking card" id="ranking" hidden>
-    <div class="section-title">🏆 World Ranking</div>
-    <p id="rankingStatus">Loading ranking securely...</p>
-    <div class="ranking-list" id="rankingList"></div>
-  </section>
+  <div class="card" id="statusCard"><div id="spinner" class="spinner"></div><h1 id="title">Connecting...</h1><p id="message">Checking your Telegram identity securely.</p></div>
+  <section class="profile card" id="profile" hidden><div class="avatar" id="avatar">*</div><h2 id="name">Player</h2><p id="username"></p><div class="balance"><strong id="balance">0</strong> MM</div><div class="badge">Telegram account verified</div></section>
+  <section class="mining card" id="mining" hidden><div class="section-title">⛏️ Mining</div><p id="miningStatus">Your miner is ready.</p><div class="mining-stat"><span>Available</span><strong id="miningReward">0 MM</strong></div><div class="mining-stat"><span>Next claim</span><strong id="nextClaim">Ready</strong></div><button id="claimMining" type="button">Claim MM</button><div class="mining-modules-head"><strong>Mining Modules</strong><span id="miningModuleSummary">Loading...</span></div><div class="mining-modules" id="miningModules"></div></section>
+  <section class="jobs card" id="jobs" hidden><div class="section-title">💼 Jobs</div><p id="jobsStatus">Loading jobs securely...</p><div class="active-job" id="activeJob" hidden></div><div class="jobs-list" id="jobsList"></div></section>
+  <section class="real-estate card" id="realEstate" hidden><div class="section-title">🏢 Real Estate</div><p id="realEstateStatus">Loading properties securely...</p><div class="real-estate-list" id="realEstateList"></div></section>
+  <section class="casino card" id="casino" hidden><div class="section-title">🎰 Casino</div><p id="casinoStatus">Virtual MM only. Server-side roulette.</p><div class="mining-stat"><span>Daily wagered</span><strong id="casinoWagered">0 / 1,000 MM</strong></div><div class="mining-stat"><span>House edge</span><strong>2.70%</strong></div><div><strong>Bet</strong><div id="casinoBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div></div><div><strong>Choose</strong><div id="casinoChoices"><button type="button" data-choice="red">Red</button><button type="button" data-choice="black">Black</button></div></div></section>
+  <section class="ranking card" id="ranking" hidden><div class="section-title">🏆 World Ranking</div><p id="rankingStatus">Loading ranking securely...</p><div class="ranking-list" id="rankingList"></div></section>
 </main>
-<script src="telegram-real-estate.js?v=20260814-10"></script>
-<script src="telegram-app.js?v=20260814-10"></script>
-<script src="telegram-mining.js?v=20260814-10"></script>
-<script src="telegram-casino.js?v=20260814-10"></script>
+<script src="telegram-real-estate.js?v=20260814-11"></script>
+<script src="telegram-app.js?v=20260814-11"></script>
+<script src="telegram-mining.js?v=20260814-11"></script>
+<script src="telegram-casino.js?v=20260814-11"></script>
 </body>
 </html>
