@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080c13">
 <title>Make Money</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="telegram.css?v=20260814-20">
+<link rel="stylesheet" href="telegram.css?v=20260814-21">
 </head>
 <body>
 <main class="app">
@@ -21,22 +21,60 @@
     <button class="menu-button" type="button" data-page="mining"><span class="menu-icon">⛏️</span><span><strong>Mining</strong><small>Claim MM and upgrade your miner</small></span><b>›</b></button>
     <button class="menu-button" type="button" data-page="jobs"><span class="menu-icon">💼</span><span><strong>Jobs</strong><small>Train, choose a job and earn salary</small></span><b>›</b></button>
     <button class="menu-button" type="button" data-page="realEstate"><span class="menu-icon">🏢</span><span><strong>Real Estate</strong><small>Buy properties and build income</small></span><b>›</b></button>
-    <button class="menu-button" type="button" data-page="casino"><span class="menu-icon">🎰</span><span><strong>Casino</strong><small>Play virtual MM roulette</small></span><b>›</b></button>
+    <button class="menu-button" type="button" data-page="casino"><span class="menu-icon">🎰</span><span><strong>Casino</strong><small>Roulette, blackjack and slots</small></span><b>›</b></button>
     <button class="menu-button" type="button" data-page="achievements"><span class="menu-icon">🏅</span><span><strong>Achievements</strong><small>Complete goals and claim rewards</small></span><b>›</b></button>
     <button class="menu-button" type="button" data-page="ranking"><span class="menu-icon">🏆</span><span><strong>World Ranking</strong><small>See the richest players</small></span><b>›</b></button>
   </section>
   <section class="page-section card mining" id="mining" hidden><div class="section-title">⛏️ Mining</div><p id="miningStatus">Your miner is ready.</p><div class="mining-stat"><span>Available</span><strong id="miningReward">0 MM</strong></div><div class="mining-stat"><span>Next claim</span><strong id="nextClaim">Ready</strong></div><button id="claimMining" type="button">Claim MM</button><div class="mining-modules-head"><strong>Mining Modules</strong><span id="miningModuleSummary">Loading...</span></div><div class="mining-modules" id="miningModules"></div></section>
   <section class="page-section card jobs" id="jobs" hidden><div class="section-title">💼 Jobs</div><p id="jobsStatus">Loading jobs securely...</p><div class="active-job" id="activeJob" hidden></div><div class="jobs-list" id="jobsList"></div></section>
   <section class="page-section card real-estate" id="realEstate" hidden><div class="section-title">🏢 Real Estate</div><p id="realEstateStatus">Loading properties securely...</p><div class="real-estate-list" id="realEstateList"></div></section>
-  <section class="page-section card casino" id="casino" hidden><div class="section-title">🎰 Casino</div><p id="casinoStatus">Virtual MM only. Server-side roulette.</p><div class="mining-stat"><span>Daily wagered</span><strong id="casinoWagered">0 / 1,000 MM</strong></div><div class="mining-stat"><span>House edge</span><strong>2.70%</strong></div><div><strong>Bet</strong><div id="casinoBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div></div><div><strong>Choose</strong><div id="casinoChoices"><button type="button" data-choice="red">Red</button><button type="button" data-choice="black">Black</button></div></div></section>
+  <section class="page-section card casino" id="casino" hidden>
+    <div class="section-title">🎰 Casino</div>
+    <p id="casinoStatus">Virtual MM only. Results are generated server-side.</p>
+    <div class="mining-stat"><span>Daily wagered</span><strong id="casinoWagered">0 / 1,000 MM</strong></div>
+    <div class="casino-tabs" id="casinoTabs">
+      <button type="button" class="casino-tab active" data-game="roulette">🎯 Roulette</button>
+      <button type="button" class="casino-tab" data-game="blackjack">🃏 Blackjack</button>
+      <button type="button" class="casino-tab" data-game="slots">🎰 Slots</button>
+    </div>
+
+    <div class="casino-game active" id="casinoRoulette">
+      <div class="casino-game-title">🎯 Roulette <span>2.70% edge</span></div>
+      <div class="roulette-wheel" id="rouletteWheel"><div class="roulette-ball">●</div><strong id="rouletteResult">?</strong></div>
+      <div class="casino-label">Bet</div><div class="casino-bets" id="rouletteBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div>
+      <div class="casino-label">Choose</div><div class="casino-bets" id="casinoChoices"><button type="button" data-choice="red">🔴 Red</button><button type="button" data-choice="black">⚫ Black</button></div>
+    </div>
+
+    <div class="casino-game" id="casinoBlackjack">
+      <div class="casino-game-title">🃏 Blackjack <span>Blackjack pays 3:2</span></div>
+      <div class="blackjack-table">
+        <div class="bj-side"><small>Dealer</small><div class="bj-cards" id="bjDealerCards"></div><strong id="bjDealerValue">—</strong></div>
+        <div class="bj-divider">VS</div>
+        <div class="bj-side"><small>You</small><div class="bj-cards" id="bjPlayerCards"></div><strong id="bjPlayerValue">—</strong></div>
+      </div>
+      <div class="casino-bets" id="blackjackBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div>
+      <button id="blackjackStart" class="casino-main-button" type="button">Deal</button>
+      <div class="blackjack-actions" id="blackjackActions" hidden><button id="blackjackHit" type="button">Hit</button><button id="blackjackStand" type="button">Stand</button></div>
+      <p id="blackjackStatus" class="casino-substatus">Choose a bet and deal.</p>
+    </div>
+
+    <div class="casino-game" id="casinoSlots">
+      <div class="casino-game-title">🎰 Lucky 7 <span>3 reels</span></div>
+      <div class="slot-machine" id="slotMachine"><div class="slot-reel" id="slot0">🍒</div><div class="slot-reel" id="slot1">🍋</div><div class="slot-reel" id="slot2">🔔</div></div>
+      <div class="slot-paytable"><span>7️⃣ ×20</span><span>💎 ×10</span><span>BAR ×7</span><span>🔔 ×5</span><span>🍋 ×3</span><span>🍒 ×2</span></div>
+      <div class="casino-bets" id="slotsBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div>
+      <button id="slotsSpin" class="casino-main-button" type="button">SPIN 🎰</button>
+      <p id="slotsStatus" class="casino-substatus">Three matching symbols win.</p>
+    </div>
+  </section>
   <section class="page-section card achievements" id="achievements" hidden><div class="section-title">🏅 Achievements</div><p id="achievementsStatus">Loading achievements securely...</p><div class="achievements-list" id="achievementsList"></div></section>
   <section class="page-section card ranking" id="ranking" hidden><div class="section-title">🏆 World Ranking</div><p id="rankingStatus">Loading ranking securely...</p><div class="ranking-list" id="rankingList"></div></section>
 </main>
-<script src="telegram-real-estate.js?v=20260814-20"></script>
-<script src="telegram-app.js?v=20260814-20"></script>
-<script src="telegram-mining.js?v=20260814-20"></script>
-<script src="telegram-casino.js?v=20260814-20"></script>
-<script src="telegram-achievements.js?v=20260814-20"></script>
-<script src="telegram-navigation.js?v=20260814-20"></script>
+<script src="telegram-real-estate.js?v=20260814-21"></script>
+<script src="telegram-app.js?v=20260814-21"></script>
+<script src="telegram-mining.js?v=20260814-21"></script>
+<script src="telegram-casino.js?v=20260814-21"></script>
+<script src="telegram-achievements.js?v=20260814-21"></script>
+<script src="telegram-navigation.js?v=20260814-21"></script>
 </body>
 </html>
