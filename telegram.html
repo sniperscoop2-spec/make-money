@@ -7,7 +7,7 @@
 <title>Make Money</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="telegram.css?v=20260814-21">
-<link rel="stylesheet" href="telegram-casino.css?v=20260815-2">
+<link rel="stylesheet" href="telegram-casino.css?v=20260815-3">
 <link rel="stylesheet" href="telegram-market.css?v=20260814-2">
 </head>
 <body>
@@ -29,15 +29,7 @@
       <div class="roulette-rule-note">European Roulette · 0–36 · House edge 2.70%</div>
       <div class="casino-label">Bet</div>
       <div class="casino-bets" id="rouletteBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div>
-      <div class="casino-label">Even-money bets · 1:1</div>
-      <div class="casino-bets roulette-outside-grid" id="rouletteEvenMoney"><button type="button" data-choice="red">🔴 Red</button><button type="button" data-choice="black">⚫ Black</button><button type="button" data-choice="odd">Odd</button><button type="button" data-choice="even">Even</button><button type="button" data-choice="low">1–18</button><button type="button" data-choice="high">19–36</button></div>
-      <div class="casino-label">Dozens · 2:1</div>
-      <div class="casino-bets" id="rouletteDozens"><button type="button" data-choice="dozen1">1st 12</button><button type="button" data-choice="dozen2">2nd 12</button><button type="button" data-choice="dozen3">3rd 12</button></div>
-      <div class="casino-label">Columns · 2:1</div>
-      <div class="casino-bets" id="rouletteColumns"><button type="button" data-choice="column1">Column 1</button><button type="button" data-choice="column2">Column 2</button><button type="button" data-choice="column3">Column 3</button></div>
-      <div class="casino-label">Straight up · 35:1</div>
-      <div class="roulette-zero-row"><button type="button" class="roulette-number-button zero" data-choice="number-0">0</button></div>
-      <div class="roulette-number-grid" id="rouletteNumberGrid"></div>
+      <div id="rouletteBetChoices"></div>
       <button id="rouletteSpin" class="roulette-spin-button" type="button">SPIN 🎡</button>
     </div>
     <div class="casino-game" id="casinoBlackjack"><div class="blackjack-table"><div class="bj-side"><small>Dealer</small><div class="bj-cards" id="bjDealerCards"></div><strong id="bjDealerValue">—</strong></div><div class="bj-divider">VS</div><div class="bj-side"><small>You</small><div class="bj-cards" id="bjPlayerCards"></div><strong id="bjPlayerValue">—</strong></div></div><div class="casino-bets" id="blackjackBets"><button type="button" data-bet="10">10 MM</button><button type="button" data-bet="25">25 MM</button><button type="button" data-bet="50">50 MM</button><button type="button" data-bet="100">100 MM</button></div><button id="blackjackStart" class="casino-main-button" type="button">Deal</button><div class="blackjack-actions" id="blackjackActions" hidden><button id="blackjackHit" type="button">Hit</button><button id="blackjackStand" type="button">Stand</button></div><p id="blackjackStatus" class="casino-substatus">Choose a bet and deal.</p></div>
@@ -47,17 +39,6 @@
   <section class="page-section card achievements" id="achievements" hidden><div class="section-title">🏅 Achievements</div><p id="achievementsStatus">Loading achievements securely...</p><div class="achievements-list" id="achievementsList"></div></section>
   <section class="page-section card ranking" id="ranking" hidden><div class="section-title">🏆 World Ranking</div><p id="rankingStatus">Loading ranking securely...</p><div class="ranking-list" id="rankingList"></div></section>
 </main>
-<script src="telegram-real-estate.js?v=20260814-21"></script><script src="telegram-app.js?v=20260814-21"></script><script src="telegram-mining.js?v=20260814-21"></script><script src="telegram-casino.js?v=20260815-2"></script><script src="telegram-market.js?v=20260814-3"></script><script src="telegram-achievements.js?v=20260814-21"></script><script src="telegram-navigation.js?v=20260814-22"></script>
-<script>
-(function(){
-  const grid=document.getElementById('rouletteNumberGrid');
-  if(!grid)return;
-  for(let n=1;n<=36;n++){
-    const b=document.createElement('button');
-    b.type='button'; b.className='roulette-number-button'; b.dataset.choice=`number-${n}`; b.textContent=n;
-    grid.appendChild(b);
-  }
-})();
-</script>
+<script src="telegram-real-estate.js?v=20260814-21"></script><script src="telegram-app.js?v=20260814-21"></script><script src="telegram-mining.js?v=20260814-21"></script><script src="telegram-casino.js?v=20260815-3"></script><script src="telegram-market.js?v=20260814-3"></script><script src="telegram-achievements.js?v=20260814-21"></script><script src="telegram-navigation.js?v=20260814-22"></script>
 </body>
 </html>
