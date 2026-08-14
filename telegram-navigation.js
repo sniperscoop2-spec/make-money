@@ -1,54 +1,42 @@
 const NAV_PAGES=['mining','jobs','realEstate','casino','achievements','ranking'];
 let navCurrent='home';
+const PAGE_TITLES={mining:'⛏️ Mining',jobs:'💼 Jobs',realEstate:'🏢 Real Estate',casino:'🎰 Casino',achievements:'🏅 Achievements',ranking:'🏆 World Ranking'};
+
+function navDisplay(el,visible){
+  if(!el)return;
+  el.hidden=!visible;
+  el.setAttribute('aria-hidden',String(!visible));
+  el.style.setProperty('display',visible?'':'none','important');
+  el.style.setProperty('visibility',visible?'':'hidden','important');
+  el.style.setProperty('pointer-events',visible?'':'none','important');
+}
 
 function navSetPage(page){
   const valid=page==='home'||NAV_PAGES.includes(page)?page:'home';
-  navCurrent=valid;
   const authenticated=Boolean(window.mmSessionToken);
-  const root=document.documentElement;
+  navCurrent=valid;
+  document.documentElement.dataset.mmPage=valid;
+  document.body.dataset.mmPage=valid;
+
   const home=document.getElementById('homeMenu');
   const profile=document.getElementById('profile');
   const status=document.getElementById('statusCard');
+  const back=document.getElementById('backHome');
+  const title=document.getElementById('pageTitle');
 
-  root.dataset.mmPage=valid;
-
-  // Explicit inline display is intentional: it prevents Telegram/WebView CSS
-  // or a stale stylesheet from overriding the page isolation rules.
-  if(home){
-    home.hidden=valid!=='home'||!authenticated;
-    home.style.display=valid==='home'&&authenticated?'':'none';
-    home.setAttribute('aria-hidden',String(valid!=='home'||!authenticated));
-  }
-  if(profile){
-    profile.hidden=valid!=='home'||!authenticated;
-    profile.style.display=valid==='home'&&authenticated?'':'none';
-    profile.setAttribute('aria-hidden',String(valid!=='home'||!authenticated));
-  }
-  if(status){
-    status.hidden=authenticated;
-    status.style.display=authenticated?'none':'';
-  }
+  navDisplay(status,!authenticated);
+  navDisplay(profile,valid==='home'&&authenticated);
+  navDisplay(home,valid==='home'&&authenticated);
+  navDisplay(back,valid!=='home'&&authenticated);
 
   for(const id of NAV_PAGES){
-    const el=document.getElementById(id);
-    if(!el)continue;
-    const visible=valid===id&&authenticated;
-    el.hidden=!visible;
-    el.style.display=visible?'':'none';
-    el.setAttribute('aria-hidden',String(!visible));
+    navDisplay(document.getElementById(id),valid===id&&authenticated);
   }
 
-  const title=document.getElementById('pageTitle');
-  if(title)title.textContent=valid==='home'?'MAKE MONEY':({mining:'⛏️ Mining',jobs:'💼 Jobs',realEstate:'🏢 Real Estate',casino:'🎰 Casino',achievements:'🏅 Achievements',ranking:'🏆 World Ranking'})[valid];
-
-  const back=document.getElementById('backHome');
-  if(back){
-    back.hidden=valid==='home'||!authenticated;
-    back.style.display=valid!=='home'&&authenticated?'':'none';
-  }
-
+  if(title)title.textContent=valid==='home'?'MAKE MONEY':PAGE_TITLES[valid];
   window.scrollTo({top:0,behavior:'auto'});
   if(!authenticated)return;
+
   if(valid==='jobs'&&typeof window.mmLoadJobs==='function')window.mmLoadJobs();
   if(valid==='ranking'&&typeof window.mmLoadRanking==='function')window.mmLoadRanking();
   if(valid==='realEstate'&&typeof window.mmLoadRealEstate==='function')window.mmLoadRealEstate();
@@ -56,11 +44,26 @@ function navSetPage(page){
 }
 
 function navInit(){
-  document.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>navSetPage(button.dataset.page)));
+  // One delegated handler guarantees every home menu button uses the same
+  // page-isolation path, even if another script changes the DOM later.
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('[data-page]');
+    if(!button)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    navSetPage(button.dataset.page);
+  },true);
+
   const back=document.getElementById('backHome');
-  if(back)back.addEventListener('click',()=>navSetPage('home'));
+  if(back)back.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    navSetPage('home');
+  },true);
+
   navSetPage('home');
 }
 
 window.addEventListener('make-money-authenticated',()=>navSetPage('home'));
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',navInit);else navInit();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',navInit,{once:true});
+else navInit();
