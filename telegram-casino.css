@@ -3,32 +3,35 @@
 .casino-tab{margin:0!important;padding:10px 7px;font-size:12px;background:#182230;color:#aab5c4;border:1px solid #263142;transition:transform .16s,background .16s,color .16s}
 .casino-tab.active{background:#163323;color:#63e69a;border-color:#285d3d}
 .casino-tab:active{transform:scale(.97)}
-.casino-game{display:none;text-align:left}
-.casino-game.active{display:block}
+.casino-game{display:none;text-align:left}.casino-game.active{display:block}
 .casino-game-title{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:17px;font-weight:900;margin:8px 0 14px}
 .casino-game-title span{font-size:10px;color:#8f9bad;font-weight:700;white-space:nowrap}
 .casino-label{font-size:12px;color:#9da9ba;margin:13px 0 7px}
 .casino-bets{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .casino-bets button{margin:0!important;padding:11px 4px;font-size:12px;background:#182230;color:#dbe1e9;border:1px solid #263142;transition:transform .14s,background .14s,border-color .14s}
-.casino-bets button.selected{background:#163323;color:#63e69a;border-color:#3a8054}
-.casino-bets button:active{transform:scale(.96)}
-#casinoChoices{grid-template-columns:repeat(3,1fr)}
-#casinoChoices button{min-height:46px}
+.casino-bets button.selected,#casinoRoulette [data-choice].selected{background:#163323;color:#63e69a;border-color:#3a8054}
+.casino-bets button:active,#casinoRoulette [data-choice]:active{transform:scale(.96)}
+.roulette-outside-grid{grid-template-columns:repeat(3,1fr)}
+.roulette-outside-grid button{min-height:46px}
+#rouletteDozens,#rouletteColumns{grid-template-columns:repeat(3,1fr)}
+#rouletteDozens button,#rouletteColumns button{min-height:44px}
 .casino-main-button{margin-top:14px!important;width:100%;font-size:17px;letter-spacing:.02em}
-.roulette-spin-button{margin-top:14px!important;width:100%;font-size:18px;font-weight:900;letter-spacing:.02em;background:#163323!important;color:#63e69a!important;border:1px solid #3a8054!important}
+.roulette-rule-note{text-align:center;color:#69788d;font-size:10px;font-weight:700;margin:-5px 0 12px}
+.roulette-spin-button{margin-top:15px!important;width:100%;font-size:18px;font-weight:900;letter-spacing:.02em;background:#163323!important;color:#63e69a!important;border:1px solid #3a8054!important;min-height:52px}
 .casino-substatus{margin-top:10px;font-size:12px;text-align:center;min-height:18px}
-.roulette-wheel{width:150px;height:150px;margin:16px auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#63e69a 0 2.7%,#101820 2.7% 5.4%,#b72f39 5.4% 8.1%,#101820 8.1% 10.8%,#b72f39 10.8% 13.5%,#101820 13.5% 16.2%,#b72f39 16.2% 18.9%,#101820 18.9% 21.6%,#b72f39 21.6% 24.3%,#101820 24.3% 27%,#b72f39 27% 29.7%,#101820 29.7% 32.4%,#b72f39 32.4% 35.1%,#101820 35.1% 37.8%,#b72f39 37.8% 40.5%,#101820 40.5% 43.2%,#b72f39 43.2% 45.9%,#101820 45.9% 48.6%,#b72f39 48.6% 51.3%,#101820 51.3% 54%,#b72f39 54% 56.7%,#101820 56.7% 59.4%,#b72f39 59.4% 62.1%,#101820 62.1% 64.8%,#b72f39 64.8% 67.5%,#101820 67.5% 70.2%,#b72f39 70.2% 72.9%,#101820 72.9% 75.6%,#b72f39 75.6% 78.3%,#101820 78.3% 81%,#b72f39 81% 83.7%,#101820 83.7% 86.4%,#b72f39 86.4% 89.1%,#101820 89.1% 91.8%,#b72f39 91.8% 94.5%,#101820 94.5% 97.2%,#b72f39 97.2% 100%);border:7px solid #263142;box-shadow:0 12px 28px #0007,0 0 0 2px #111823 inset;position:relative;overflow:hidden;will-change:transform;transform:translateZ(0)}
+.roulette-wheel{width:150px;height:150px;margin:16px auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#63e69a 0 2.7%,#101820 2.7% 5.4%,#b72f39 5.4% 8.1%,#101820 8.1% 10.8%,#b72f39 10.8% 13.5%,#101820 13.5% 16.2%,#b72f39 16.2% 18.9%,#101820 18.9% 21.6%,#b72f39 21.6% 24.3%,#101820 24.3% 27%,#b72f39 27% 29.7%,#101820 29.7% 32.4%,#b72f39 32.4% 35.1%,#101820 35.1% 37.8%,#b72f39 37.8% 40.5%,#101820 40.5% 43.2%,#b72f39 43.2% 45.9%,#101820 45.9% 48.6%,#b72f39 48.6% 51.3%,#101820 51.3% 54%,#b72f39 54% 56.7%,#101820 56.7% 59.4%,#b72f39 59.4% 62.1%,#101820 62.1% 64.8%,#b72f39 64.8% 67.5%,#101820 67.5% 70.2%,#b72f39 70.2% 72.9%,#b72f39 72.9% 75.6%,#101820 75.6% 78.3%,#b72f39 78.3% 81%,#101820 81% 83.7%,#b72f39 83.7% 86.4%,#101820 86.4% 89.1%,#b72f39 89.1% 91.8%,#101820 91.8% 94.5%,#b72f39 94.5% 97.2%,#101820 97.2% 100%);border:7px solid #263142;box-shadow:0 12px 28px #0007,0 0 0 2px #111823 inset;position:relative;overflow:hidden;will-change:transform;transform:translate3d(0,0,0);backface-visibility:hidden}
 .roulette-wheel:before{content:'';position:absolute;inset:8px;border-radius:50%;border:1px solid #ffffff2b;box-shadow:inset 0 0 0 3px #0004,0 0 18px #0008;z-index:1;pointer-events:none}
 .roulette-wheel:after{content:'';position:absolute;inset:28px;border-radius:50%;background:#111823;border:2px solid #344255;box-shadow:inset 0 0 16px #0009,0 0 0 4px #0b1119;z-index:2;pointer-events:none}
-.roulette-ball{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:5;color:#fff;font-size:12px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 7px #fff,0 0 14px #fff;will-change:top,left,transform}
+.roulette-ball{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(-67px);z-index:5;color:#fff;font-size:12px;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 7px #fff,0 0 14px #fff;will-change:transform;backface-visibility:hidden;pointer-events:none}
 .roulette-wheel strong{position:relative;z-index:6;font-size:30px;text-shadow:0 2px 8px #000;pointer-events:none}
-.roulette-spin{animation:rouletteSpinSmooth 5s cubic-bezier(.12,.72,.18,1) forwards}
-.roulette-spin .roulette-ball{animation:rouletteBallOrbitSmooth 5s linear forwards}
-.roulette-spin:before{animation:rouletteGlow 5s ease-out forwards}
-@keyframes rouletteSpinSmooth{0%{transform:translateZ(0) rotate(0deg)}70%{transform:translateZ(0) rotate(1260deg)}88%{transform:translateZ(0) rotate(1600deg)}96%{transform:translateZ(0) rotate(1740deg)}100%{transform:translateZ(0) rotate(1800deg)}}
-@keyframes rouletteBallOrbitSmooth{0%{top:9px;left:50%;transform:translate(-50%,-50%) rotate(0deg)}25%{top:50%;left:91%;transform:translate(-50%,-50%) rotate(90deg)}50%{top:91%;left:50%;transform:translate(-50%,-50%) rotate(180deg)}75%{top:50%;left:9%;transform:translate(-50%,-50%) rotate(270deg)}100%{top:9px;left:50%;transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes rouletteGlow{0%,100%{opacity:.3;transform:scale(1)}45%{opacity:1;transform:scale(1.04)}}
 .roulette-number.red{color:#ff777e}.roulette-number.black{color:#fff}.roulette-number.green{color:#63e69a}
+.roulette-zero-row{display:flex;justify-content:center;margin-bottom:7px}
+.roulette-number-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.roulette-number-button{margin:0!important;min-height:38px;padding:7px 3px;border-radius:9px;background:#182230;color:#dbe1e9;border:1px solid #263142;font-size:13px;font-weight:900;transition:transform .12s,background .12s,border-color .12s,color .12s}
+.roulette-number-button:hover{border-color:#3a8054}.roulette-number-button:active{transform:scale(.96)}
+.roulette-number-button.selected{background:#163323;color:#63e69a;border-color:#3a8054}
+.roulette-number-button.zero{background:#123b25;color:#63e69a;border-color:#285d3d;width:100px}
+#rouletteEvenMoney [data-choice],#rouletteDozens [data-choice],#rouletteColumns [data-choice]{font-weight:900}
 .blackjack-table{background:linear-gradient(145deg,#101f17,#0c121b);border:1px solid #285d3d;border-radius:18px;padding:15px;margin-bottom:12px;display:grid;grid-template-columns:1fr 26px 1fr;gap:7px;align-items:center}
 .bj-side{text-align:center;min-width:0}.bj-side small{color:#9da9ba;font-size:11px}.bj-side strong{display:block;margin-top:8px;color:#63e69a;font-size:15px}.bj-divider{color:#526173;font-size:10px;font-weight:900}
 .bj-cards{display:flex;justify-content:center;gap:5px;min-height:62px;margin-top:7px}
@@ -43,3 +46,4 @@
 @keyframes reelSpin{0%{transform:translateY(-5px);filter:blur(1px)}50%{transform:translateY(5px);filter:blur(2px)}100%{transform:translateY(-5px);filter:blur(1px)}}@keyframes slotWin{50%{transform:scale(1.03);box-shadow:0 0 24px #63e69a}}
 .slot-paytable{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0;color:#9da9ba;font-size:10px;text-align:center}.slot-paytable span{padding:6px 3px;background:#0c121b;border-radius:8px}
 .casino-status-win{color:#63e69a}.casino-status-loss{color:#ff8b91}
+@media (max-width:430px){.roulette-number-grid{gap:4px}.roulette-number-button{min-height:36px;font-size:12px}.roulette-outside-grid{gap:5px}.casino-bets{gap:5px}}
