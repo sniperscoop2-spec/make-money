@@ -1,6 +1,7 @@
 const AUTH_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-auth';
 const MINING_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-mining';
 const JOBS_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-jobs';
+const RANKING_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-ranking';
 const tg=window.Telegram?.WebApp;
 const $=id=>document.getElementById(id);
 let sessionToken=null;
@@ -9,6 +10,7 @@ let balance=0;
 let jobs=[];
 let jobsBusy=false;
 let jobsTimer=null;
+let rankingTimer=null;
 
 function fail(message){$('spinner').style.display='none';$('title').textContent='Connexion impossible';$('message').textContent=message;}
 function formatMM(value){return Number(value||0).toLocaleString('en-US',{maximumFractionDigits:4});}
@@ -96,6 +98,35 @@ async function jobAction(job,action){
     $('jobsStatus').textContent=messages[e.message]||`Job action failed (${e.message}).`;
   }finally{jobsBusy=false;renderJobs();}
 }
+function clearRankingTimer(){if(rankingTimer){clearTimeout(rankingTimer);rankingTimer=null;}}
+function scheduleRankingRefresh(ms=60000){clearRankingTimer();rankingTimer=setTimeout(()=>loadRanking(false),ms);}
+function renderRanking(rows){
+  const list=$('rankingList');if(!list)return;list.replaceChildren();
+  if(!rows.length){$('rankingStatus').textContent='No players ranked yet.';return;}
+  for(const player of rows){
+    const row=document.createElement('div');row.className=`ranking-row${player.is_me?' me':''}`;
+    const rank=document.createElement('span');rank.className='ranking-rank';rank.textContent=`#${Number(player.rank||0)}`;
+    const identity=document.createElement('div');identity.className='ranking-identity';
+    const name=document.createElement('strong');name.textContent=player.display_name||'Player';
+    const username=document.createElement('small');username.textContent=player.username?`@${player.username}`:(player.is_me?'You':'Telegram player');
+    identity.append(name,username);
+    const amount=document.createElement('strong');amount.className='ranking-balance';amount.textContent=`${formatMM(player.balance)} MM`;
+    row.append(rank,identity,amount);list.append(row);
+  }
+}
+async function loadRanking(showLoading=true){
+  if(!sessionValid())return;
+  if(showLoading)$('rankingStatus').textContent='Loading ranking securely...';
+  try{
+    const r=await fetch(RANKING_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`},body:JSON.stringify({limit:50}),cache:'no-store'});
+    const data=await r.json().catch(()=>null);
+    if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);
+    const rows=Array.isArray(data.ranking)?data.ranking:[];
+    renderRanking(rows);
+    $('rankingStatus').textContent=rows.length?`Top ${rows.length} · Live server ranking`:'No players ranked yet.';
+    scheduleRankingRefresh();
+  }catch(e){$('rankingStatus').textContent=e.message==='SESSION_EXPIRED'?'Session expired. Reopen the Mini App.':`Ranking unavailable (${e.message}).`;}
+}
 async function start(){
   if(!tg){fail('Cette page doit être ouverte depuis Telegram.');return;}
   try{tg.ready();tg.expand();tg.disableVerticalSwipes?.();}catch{}
@@ -107,11 +138,11 @@ async function start(){
     if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);
     sessionToken=data.session.token;sessionExpiresAt=new Date(data.session.expires_at).getTime();
     const p=data.player;
-    $('statusCard').hidden=true;$('profile').hidden=false;$('mining').hidden=false;$('jobs').hidden=false;
+    $('statusCard').hidden=true;$('profile').hidden=false;$('mining').hidden=false;$('jobs').hidden=false;$('realEstate').hidden=false;$('ranking').hidden=false;
     $('name').textContent=[p.first_name,p.last_name].filter(Boolean).join(' ')||'Player';
     $('username').textContent=p.username?`@${p.username}`:'Telegram user';setBalance(p.balance);
     if(p.avatar_url){const img=document.createElement('img');img.src=p.avatar_url;img.alt='';img.referrerPolicy='no-referrer';$('avatar').replaceChildren(img);}
-    $('claimMining').addEventListener('click',claimMining,{passive:true});updateMiningTime(p.next_claim_at);await loadJobs();
+    $('claimMining').addEventListener('click',claimMining,{passive:true});updateMiningTime(p.next_claim_at);await loadJobs();await loadRanking();
   }catch(e){fail(e.message==='Failed to fetch'?'Serveur d’authentification inaccessible.':`Échec de l’authentification (${e.message}).`);}
 }
 start();
