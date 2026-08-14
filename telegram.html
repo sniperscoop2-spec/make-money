@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080c13">
 <title>Make Money</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="telegram.css?v=20260814-4">
+<link rel="stylesheet" href="telegram.css?v=20260814-5">
 </head>
 <body>
 <main class="app">
@@ -29,6 +29,11 @@
     <div class="mining-stat"><span>Available</span><strong id="miningReward">0 MM</strong></div>
     <div class="mining-stat"><span>Next claim</span><strong id="nextClaim">Ready</strong></div>
     <button id="claimMining" type="button">Claim MM</button>
+    <div class="mining-modules-head">
+      <strong>Mining Modules</strong>
+      <span id="miningModuleSummary">Loading...</span>
+    </div>
+    <div class="mining-modules" id="miningModules"></div>
   </section>
   <section class="jobs card" id="jobs" hidden>
     <div class="section-title">💼 Jobs</div>
@@ -47,7 +52,8 @@
     <div class="ranking-list" id="rankingList"></div>
   </section>
 </main>
-<script src="telegram-real-estate.js?v=20260814-4"></script>
-<script src="telegram-app.js?v=20260814-4"></script>
+<script src="telegram-real-estate.js?v=20260814-5"></script>
+<script src="telegram-app.js?v=20260814-5"></script>
+<script src="telegram-mining.js?v=20260814-1"></script>
 </body>
 </html>
