@@ -18,21 +18,24 @@ function navSetPage(page){
   document.documentElement.dataset.mmPage=valid;
   document.body.dataset.mmPage=valid;
 
-  const home=document.getElementById('homeMenu');
-  const profile=document.getElementById('profile');
-  const status=document.getElementById('statusCard');
-  const back=document.getElementById('backHome');
-  const title=document.getElementById('pageTitle');
-
-  navDisplay(status,!authenticated);
-  navDisplay(profile,valid==='home'&&authenticated);
-  navDisplay(home,valid==='home'&&authenticated);
-  navDisplay(back,valid!=='home'&&authenticated);
+  // Use ALL matching elements, not only getElementById(). This protects the
+  // Mini App if another module ever creates a duplicate menu node.
+  document.querySelectorAll('.home-menu').forEach(el=>navDisplay(el,valid==='home'&&authenticated));
+  document.querySelectorAll('.profile').forEach(el=>navDisplay(el,valid==='home'&&authenticated));
+  navDisplay(document.getElementById('statusCard'),!authenticated);
+  navDisplay(document.getElementById('backHome'),valid!=='home'&&authenticated);
 
   for(const id of NAV_PAGES){
-    navDisplay(document.getElementById(id),valid===id&&authenticated);
+    document.querySelectorAll(`#${id}`).forEach(el=>navDisplay(el,valid===id&&authenticated));
   }
 
+  if(valid!=='home'){
+    // Absolute isolation: no Home menu/card can remain in the active category.
+    document.querySelectorAll('.home-menu,.profile').forEach(el=>navDisplay(el,false));
+    document.querySelectorAll('.page-section').forEach(el=>navDisplay(el,el.id===valid&&authenticated));
+  }
+
+  const title=document.getElementById('pageTitle');
   if(title)title.textContent=valid==='home'?'MAKE MONEY':PAGE_TITLES[valid];
   window.scrollTo({top:0,behavior:'auto'});
   if(!authenticated)return;
@@ -44,8 +47,6 @@ function navSetPage(page){
 }
 
 function navInit(){
-  // One delegated handler guarantees every home menu button uses the same
-  // page-isolation path, even if another script changes the DOM later.
   document.addEventListener('click',event=>{
     const button=event.target.closest?.('[data-page]');
     if(!button)return;
@@ -60,6 +61,16 @@ function navInit(){
     event.stopImmediatePropagation();
     navSetPage('home');
   },true);
+
+  // Guard against another script or WebView changing visibility after routing.
+  const observer=new MutationObserver(()=>{
+    if(navCurrent==='home')return;
+    const authenticated=Boolean(window.mmSessionToken);
+    if(!authenticated)return;
+    document.querySelectorAll('.home-menu,.profile').forEach(el=>navDisplay(el,false));
+    document.querySelectorAll('.page-section').forEach(el=>navDisplay(el,el.id===navCurrent));
+  });
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','style','class']});
 
   navSetPage('home');
 }
