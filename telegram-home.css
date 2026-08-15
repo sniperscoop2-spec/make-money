@@ -6,3 +6,6 @@
 #homeAssetList .home-asset-row{flex:0 0 calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important;box-sizing:border-box!important}
 #homeAssetList.count-1 .home-asset-row{flex-basis:100%!important;width:100%!important;max-width:100%!important}
 #homeAssetList.count-2 .home-asset-row,#homeAssetList.count-3 .home-asset-row,#homeAssetList.has-more .home-asset-row{flex-basis:calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important}
+/* Owned real-estate buttons follow the same green state as active jobs/possessions. */
+.property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}
+.property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}
