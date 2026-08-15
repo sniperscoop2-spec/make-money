@@ -13,11 +13,12 @@
           const input=document.createElement('input');
           input.type='number';
           input.min='10';
+          input.max='100';
           input.step='1';
           input.inputMode='numeric';
-          input.placeholder='Custom MM';
+          input.placeholder='Custom MM (10–100)';
           input.className='casino-custom-bet';
-          input.setAttribute('aria-label','Custom bet amount in MM');
+          input.setAttribute('aria-label','Custom bet amount in MM, maximum 100');
           input.dataset.customBet='true';
           old.replaceWith(input);
         }
@@ -25,22 +26,22 @@
       document.querySelectorAll('.casino-custom-bet').forEach(input=>{
         if(input.dataset.bound==='true')return;
         input.dataset.bound='true';
-        input.addEventListener('input',()=>{
-          input.value=input.value.replace(/[^0-9]/g,'');
-          const value=Number(input.value);
-          if(typeof window.setCasinoBet==='function'&&Number.isSafeInteger(value)&&value>=10&&value<=Number(window.mmBalance||0)){
+        const accept=value=>{
+          if(typeof window.setCasinoBet!=='function')return;
+          if(Number.isSafeInteger(value)&&value>=10&&value<=100&&value<=Number(window.mmBalance||0)){
             window.setCasinoBet(value);
           }
-        });
-        input.addEventListener('change',()=>{
+        };
+        input.addEventListener('input',()=>{
+          input.value=input.value.replace(/[^0-9]/g,'').slice(0,3);
           const value=Number(input.value);
-          if(typeof window.setCasinoBet==='function')window.setCasinoBet(value);
+          accept(value);
         });
+        input.addEventListener('change',()=>accept(Number(input.value)));
         input.addEventListener('keydown',event=>{
           if(event.key==='Enter'){
             event.preventDefault();
-            const value=Number(input.value);
-            if(typeof window.setCasinoBet==='function')window.setCasinoBet(value);
+            accept(Number(input.value));
             input.blur();
           }
         });
@@ -49,7 +50,6 @@
 
     installCustomBetInputs();
 
-    // Capture roulette clicks before any stale direct listener can run.
     document.addEventListener('click',function(event){
       const button=event.target.closest?.('#rouletteBetChoices [data-choice]');
       if(!button)return;
@@ -59,7 +59,6 @@
       if(choice && typeof window.setRouletteChoice==='function')window.setRouletteChoice(choice);
     },true);
 
-    // The casino markup is static, but keep this safe if the view is rebuilt.
     window.addEventListener('make-money-authenticated',installCustomBetInputs);
     window.addEventListener('make-money-balance-updated',installCustomBetInputs);
   }
