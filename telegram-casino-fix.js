@@ -13,12 +13,12 @@
           const input=document.createElement('input');
           input.type='number';
           input.min='10';
-          input.max='100';
+          input.removeAttribute('max');
           input.step='1';
           input.inputMode='numeric';
-          input.placeholder='Custom MM (10–100)';
+          input.placeholder='Custom MM (10+)';
           input.className='casino-custom-bet';
-          input.setAttribute('aria-label','Custom bet amount in MM, maximum 100');
+          input.setAttribute('aria-label','Custom bet amount in MM, minimum 10, limited only by balance');
           input.dataset.customBet='true';
           old.replaceWith(input);
         }
@@ -28,12 +28,12 @@
         input.dataset.bound='true';
         const accept=value=>{
           if(typeof window.setCasinoBet!=='function')return;
-          if(Number.isSafeInteger(value)&&value>=10&&value<=100&&value<=Number(window.mmBalance||0)){
+          if(Number.isSafeInteger(value)&&value>=10&&value<=Number.MAX_SAFE_INTEGER&&value<=Number(window.mmBalance||0)){
             window.setCasinoBet(value);
           }
         };
         input.addEventListener('input',()=>{
-          input.value=input.value.replace(/[^0-9]/g,'').slice(0,3);
+          input.value=input.value.replace(/[^0-9]/g,'');
           const value=Number(input.value);
           accept(value);
         });
