@@ -73,6 +73,7 @@
     const status = document.getElementById('miningStatus');
     const button = document.getElementById('claimMining');
     if (!status || !button) return;
+    if (/^Mining is active\./i.test(status.textContent.trim())) status.textContent = '';
     if (status.parentElement === button.parentElement && button.nextElementSibling !== status) {
       button.insertAdjacentElement('afterend', status);
     }
