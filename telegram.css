@@ -10,3 +10,5 @@ html[data-mm-page="mining"] #mining,html[data-mm-page="jobs"] #jobs,html[data-mm
 .job-row.active button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1;cursor:default}
 /* Current mining module action: the button itself is light green; the module card stays dark. */
 .mining-module.active .mining-module-button.current-module-button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}
+/* Real Estate header matches Mining: centered title and centered description with clean spacing below. */
+.real-estate>.section-title{text-align:center!important;margin-bottom:10px!important}.real-estate>#realEstateStatus{text-align:center!important;margin:10px 0 16px!important;font-size:13px;line-height:1.45}
