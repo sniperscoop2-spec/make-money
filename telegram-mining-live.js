@@ -79,6 +79,17 @@
     }
   }
 
+  function installClaimRefresh() {
+    const button = document.getElementById('claimMining');
+    if (!button || button.__mmLiveRefreshBound) return;
+    button.__mmLiveRefreshBound = true;
+    button.addEventListener('click', () => {
+      window.setTimeout(() => {
+        if (typeof window.loadMiningModules === 'function') window.loadMiningModules();
+      }, 700);
+    });
+  }
+
   function applyLiveStyles() {
     if (document.getElementById('miningLiveAmountStyle')) return;
     const style = document.createElement('style');
@@ -107,9 +118,11 @@
     applyLiveStyles();
     install();
     moveMiningStatus();
+    installClaimRefresh();
     const observer = new MutationObserver(() => {
       install();
       moveMiningStatus();
+      installClaimRefresh();
       if (lastNextClaimAt) refreshAvailable(lastNextClaimAt);
     });
     observer.observe(document.body, { childList: true, subtree: true });
