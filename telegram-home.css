@@ -9,3 +9,6 @@
 /* Owned real-estate buttons follow the same green state as active jobs/possessions. */
 .property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}
 .property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}
+/* FINAL REAL-ESTATE CLAIM STATE: cooldown stays dark, only an available claim is light green. */
+.property-row.owned button.claim-cooldown{background:#1f5a3d!important;color:#8ab89f!important;opacity:1!important;cursor:not-allowed!important}
+.property-row.owned button.claim-ready{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:pointer!important}
