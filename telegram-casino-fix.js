@@ -69,29 +69,45 @@
 
 /* Inventory UI fixes: secure loading label + catalog sorted by ascending sell value. */
 (function(){
-  const installInventoryFix=()=>{
+  let applied=false;
+
+  function applyInventoryFixes(){
     const status=document.getElementById('inventoryStatus');
     if(status)status.textContent='Secure inventory';
 
-    if(typeof window.renderCatalog==='function' && !window.__mmCatalogSorted){
+    if(!applied && typeof window.renderCatalog==='function'){
       const originalRenderCatalog=window.renderCatalog;
       window.renderCatalog=function(){
-        if(Array.isArray(window.caseCatalog)){
-          window.caseCatalog.sort((a,b)=>Number(a?.sell_value||0)-Number(b?.sell_value||0));
+        const result=originalRenderCatalog.apply(this,arguments);
+        const root=document.getElementById('catalogList');
+        if(root){
+          const cards=Array.from(root.children);
+          cards.sort((a,b)=>{
+            const getPrice=card=>{
+              const text=card.querySelector('small')?.textContent||'';
+              const match=text.match(/Sell\s+([\d,]+(?:\.\d+)?)\s+MM/i);
+              return match?Number(match[1].replace(/,/g,'')):Number.POSITIVE_INFINITY;
+            };
+            return getPrice(a)-getPrice(b);
+          });
+          root.append(...cards);
         }
-        return originalRenderCatalog();
+        return result;
       };
-      window.__mmCatalogSorted=true;
+      applied=true;
     }
-  };
+  }
 
-  const run=()=>{
-    installInventoryFix();
-    const observer=new MutationObserver(installInventoryFix);
-    observer.observe(document.body,{childList:true,subtree:true});
-    window.addEventListener('make-money-authenticated',installInventoryFix);
-    window.addEventListener('make-money-inventory-updated',installInventoryFix);
-  };
+  function run(){
+    applyInventoryFixes();
+    window.addEventListener('make-money-authenticated',applyInventoryFixes);
+    window.addEventListener('make-money-inventory-updated',applyInventoryFixes);
+    const retry=window.setInterval(()=>{
+      applyInventoryFixes();
+      if(applied)window.clearInterval(retry);
+    },100);
+    window.setTimeout(()=>window.clearInterval(retry),5000);
+  }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
   else run();
