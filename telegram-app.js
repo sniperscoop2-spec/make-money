@@ -13,8 +13,8 @@ function randomOperationKey(){if(window.crypto?.randomUUID)return window.crypto.
 function sessionValid(){return Boolean(sessionToken&&Date.now()<sessionExpiresAt);}
 async function apiFetch(url,options={},timeoutMs=API_TIMEOUT_MS){const controller=new AbortController();const timer=window.setTimeout(()=>controller.abort(),timeoutMs);try{return await fetch(url,{...options,signal:controller.signal,cache:'no-store'});}finally{window.clearTimeout(timer);}}
 function setAvatar(src){if(!src)return;const targets=[$('avatar'),$('homeProfileButton'),$('profileAvatarLarge')];for(const target of targets){if(!target)continue;const img=document.createElement('img');img.src=src;img.alt='';img.loading='eager';img.referrerPolicy='no-referrer';img.addEventListener('error',()=>{img.remove();},{once:true});target.replaceChildren(img);}}
-function updateMiningTime(nextClaimAt){if(!nextClaimAt){$('nextClaim').textContent='Ready';$('claimMining').disabled=false;updateMiningClaimUI();return;}const target=new Date(nextClaimAt).getTime();if(!Number.isFinite(target)){$('nextClaim').textContent='Unavailable';$('claimMining').disabled=true;updateMiningClaimUI();return;}const tick=()=>{const remaining=Math.max(0,target-Date.now());if(remaining<=0){$('nextClaim').textContent='Ready';$('claimMining').disabled=false;$('miningStatus').textContent='Your miner is ready.';updateMiningClaimUI();return;}const totalSeconds=Math.ceil(remaining/1000),h=Math.floor(totalSeconds/3600),m=Math.floor((totalSeconds%3600)/60),s=totalSeconds%60;$('nextClaim').textContent=`${h}h ${m}m ${s}s`;$('claimMining').disabled=true;$('miningStatus').textContent='Mining is active. Come back when the timer reaches zero.';updateMiningClaimUI();window.setTimeout(tick,1000);};tick();}
-async function claimMining(){if(!sessionValid()){$('miningStatus').textContent='Session expired. Reopen the Mini App.';return;}const button=$('claimMining');button.disabled=true;$('miningStatus').textContent='Claiming securely...';try{const r=await apiFetch(MINING_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`},body:JSON.stringify({operation_key:randomOperationKey()})});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);setBalance(data.balance);const reward=Number(data.reward||0);$('miningReward').textContent=reward>0?`+${formatMM(reward)} MM`:'0 MM';$('miningStatus').textContent=reward>0?'Mining reward credited securely.':'Nothing to claim yet.';if(reward>0)window.mmMiningClaimAmount=reward;updateMiningClaimUI();updateMiningTime(data.next_claim_at);window.dispatchEvent(new CustomEvent('make-money-achievement-refresh'));}catch(e){$('miningStatus').textContent=e.name==='AbortError'?'Mining request timed out. Try again.':e.message==='SESSION_EXPIRED'?'Session expired. Reopen the Mini App.':`Claim failed (${e.message}).`;button.disabled=false;updateMiningClaimUI();}}
+function updateMiningTime(nextClaimAt){if(!nextClaimAt){$('nextClaim').textContent='Ready';$('claimMining').disabled=false;return;}const target=new Date(nextClaimAt).getTime();if(!Number.isFinite(target)){$('nextClaim').textContent='Unavailable';$('claimMining').disabled=true;return;}const tick=()=>{const remaining=Math.max(0,target-Date.now());if(remaining<=0){$('nextClaim').textContent='Ready';$('claimMining').disabled=false;$('miningStatus').textContent='Your miner is ready.';return;}const totalSeconds=Math.ceil(remaining/1000),h=Math.floor(totalSeconds/3600),m=Math.floor((totalSeconds%3600)/60),s=totalSeconds%60;$('nextClaim').textContent=`${h}h ${m}m ${s}s`;$('claimMining').disabled=true;$('miningStatus').textContent='Mining is active. Come back when the timer reaches zero.';window.setTimeout(tick,1000);};tick();}
+async function claimMining(){if(!sessionValid()){$('miningStatus').textContent='Session expired. Reopen the Mini App.';return;}const button=$('claimMining');button.disabled=true;$('miningStatus').textContent='Claiming securely...';try{const r=await apiFetch(MINING_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`},body:JSON.stringify({operation_key:randomOperationKey()})});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);setBalance(data.balance);const reward=Number(data.reward||0);$('miningReward').textContent=reward>0?`+${formatMM(reward)} MM`:'0 MM';$('miningStatus').textContent=reward>0?'Mining reward credited securely.':'Nothing to claim yet.';updateMiningTime(data.next_claim_at);window.dispatchEvent(new CustomEvent('make-money-achievement-refresh'));}catch(e){$('miningStatus').textContent=e.name==='AbortError'?'Mining request timed out. Try again.':e.message==='SESSION_EXPIRED'?'Session expired. Reopen the Mini App.':`Claim failed (${e.message}).`;button.disabled=false;}}
 function clearJobsTimer(){if(jobsTimer){clearTimeout(jobsTimer);jobsTimer=null;}if(jobsProgressTimer){clearInterval(jobsProgressTimer);jobsProgressTimer=null;}}
 function scheduleJobsRefresh(ms=60000){if(jobsTimer)clearTimeout(jobsTimer);jobsTimer=setTimeout(()=>loadJobs(false),ms);}
 function formatJobCountdown(ms){const total=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;return `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;}
@@ -26,73 +26,5 @@ function clearRankingTimer(){if(rankingTimer){clearTimeout(rankingTimer);ranking
 function renderRanking(rows){const list=$('rankingList');if(!list)return;list.replaceChildren();if(!rows.length){$('rankingStatus').textContent='No players ranked yet.';return;}for(const player of rows){const row=document.createElement('div');row.className=`ranking-row${player.is_me?' me':''}`;const rank=document.createElement('span');rank.className='ranking-rank';rank.textContent=`#${Number(player.rank||0)}`;const identity=document.createElement('div');identity.className='ranking-identity';const name=document.createElement('strong');name.textContent=player.display_name||'Player';const username=document.createElement('small');username.textContent=player.username?`@${player.username}`:(player.is_me?'You':'Telegram player');identity.append(name,username);const amount=document.createElement('strong');amount.className='ranking-balance';amount.textContent=`${formatMM(player.balance)} MM`;row.append(rank,identity,amount);list.append(row);}}
 async function loadRanking(showLoading=true){if(!sessionValid())return;if(showLoading)$('rankingStatus').textContent='Loading ranking securely...';try{const r=await apiFetch(RANKING_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`},body:JSON.stringify({limit:50})});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);const rows=Array.isArray(data.ranking)?data.ranking:[];renderRanking(rows);$('rankingStatus').textContent=rows.length?`Top ${rows.length} · Live server ranking`:'No players ranked yet.';scheduleRankingRefresh();}catch(e){$('rankingStatus').textContent=e.name==='AbortError'?'Ranking request timed out.':'Ranking unavailable.';}}
 window.mmLoadJobs=()=>loadJobs();window.mmLoadRanking=()=>loadRanking();
-
-/* Mining claim display: mirror the Jobs progress-box style without changing the mining logic. */
-function detectMiningClaimAmount(){
-  const stored=Number(window.mmMiningClaimAmount||0);
-  if(Number.isFinite(stored)&&stored>0)return stored;
-  const nodes=document.querySelectorAll('body *');
-  for(const node of nodes){
-    if(node.children.length>0)continue;
-    const text=String(node.textContent||'').replace(/,/g,'').trim();
-    const match=text.match(/(?:·|•|\-)\s*(\d+(?:\.\d+)?)\s*MM\/h\b/i);
-    if(match){
-      const value=Number(match[1]);
-      if(Number.isFinite(value)&&value>0){window.mmMiningClaimAmount=value;return value;}
-    }
-  }
-  window.mmMiningClaimAmount=10;
-  return 10;
-}
-function updateMiningClaimUI(){
-  const button=$('claimMining');
-  if(!button)return;
-  const amount=detectMiningClaimAmount();
-  const next=$('nextClaim');
-  const reward=$('miningReward');
-  const status=$('miningStatus');
-  const candidates=[button,next,reward,status].filter(Boolean);
-  let box=null;
-  for(const el of candidates){
-    let parent=el.parentElement;
-    for(let depth=0;parent&&depth<6;depth++,parent=parent.parentElement){
-      if(candidates.every(child=>parent.contains(child))){box=parent;break;}
-    }
-    if(box)break;
-  }
-  if(!box)return;
-
-  let heading=null;
-  for(const el of box.querySelectorAll('strong,h2,h3,h4,div,span,p')){
-    if(el.children.length===0&&String(el.textContent||'').trim()==='Mining progress'){
-      heading=el;
-      break;
-    }
-  }
-  if(heading){
-    heading.style.display='flex';
-    heading.style.justifyContent='space-between';
-    heading.style.alignItems='center';
-    heading.style.gap='10px';
-    heading.style.fontSize='14px';
-    let amountEl=heading.querySelector('.mining-claim-amount');
-    if(!amountEl){
-      amountEl=document.createElement('span');
-      amountEl.className='mining-claim-amount';
-      heading.appendChild(amountEl);
-    }
-    amountEl.textContent=`+${formatMM(amount)} MM`;
-    amountEl.style.fontWeight='700';
-    amountEl.style.color='#63e69a';
-    amountEl.style.whiteSpace='nowrap';
-    amountEl.style.flexShrink='0';
-  }
-
-  const ready=!button.disabled;
-  button.textContent=`Claim ${formatMM(amount)} MM`;
-  if(!ready)button.setAttribute('aria-label',`Claim ${formatMM(amount)} MM when ready`);
-  else button.setAttribute('aria-label',`Claim ${formatMM(amount)} MM`);
-}
-
-async function start(){if(!tg){fail('Cette page doit être ouverte depuis Telegram.');return;}try{tg.ready();tg.expand();tg.disableVerticalSwipes?.();}catch{}const initData=tg.initData;if(!initData){fail('Telegram n’a fourni aucune donnée d’authentification. Ouvre la Mini App depuis le bot.');return;}try{const r=await apiFetch(AUTH_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData})});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);sessionToken=data.session.token;sessionExpiresAt=new Date(data.session.expires_at).getTime();window.mmSessionToken=sessionToken;window.mmSessionExpiresAt=sessionExpiresAt;const p=data.player;$('statusCard').hidden=true;$('profile').hidden=false;$('homeMenu').hidden=false;$('name').textContent=[p.first_name,p.last_name].filter(Boolean).join(' ')||'Player';$('username').textContent=p.username?`@${p.username}`:'Telegram user';setBalance(p.balance);setAvatar(p.avatar_url||p.avatar_data_url||'');$('claimMining').addEventListener('click',claimMining,{passive:true});updateMiningClaimUI();updateMiningTime(p.next_claim_at);window.dispatchEvent(new CustomEvent('make-money-authenticated',{detail:{token:sessionToken,expiresAt:sessionExpiresAt}}));await Promise.allSettled([loadJobs(),loadRanking()]);}catch(e){fail(e.name==='AbortError'?'Connexion au serveur expirée. Réessaie.':e.message==='Failed to fetch'?'Serveur d’authentification inaccessible.':`Échec de l’authentification (${e.message}).`);}}
+async function start(){if(!tg){fail('Cette page doit être ouverte depuis Telegram.');return;}try{tg.ready();tg.expand();tg.disableVerticalSwipes?.();}catch{}const initData=tg.initData;if(!initData){fail('Telegram n’a fourni aucune donnée d’authentification. Ouvre la Mini App depuis le bot.');return;}try{const r=await apiFetch(AUTH_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData})});const data=await r.json().catch(()=>null);if(!r.ok||!data?.ok)throw new Error(data?.error||`HTTP ${r.status}`);sessionToken=data.session.token;sessionExpiresAt=new Date(data.session.expires_at).getTime();window.mmSessionToken=sessionToken;window.mmSessionExpiresAt=sessionExpiresAt;const p=data.player;$('statusCard').hidden=true;$('profile').hidden=false;$('homeMenu').hidden=false;$('name').textContent=[p.first_name,p.last_name].filter(Boolean).join(' ')||'Player';$('username').textContent=p.username?`@${p.username}`:'Telegram user';setBalance(p.balance);setAvatar(p.avatar_url||p.avatar_data_url||'');$('claimMining').addEventListener('click',claimMining,{passive:true});updateMiningTime(p.next_claim_at);window.dispatchEvent(new CustomEvent('make-money-authenticated',{detail:{token:sessionToken,expiresAt:sessionExpiresAt}}));await Promise.allSettled([loadJobs(),loadRanking()]);}catch(e){fail(e.name==='AbortError'?'Connexion au serveur expirée. Réessaie.':e.message==='Failed to fetch'?'Serveur d’authentification inaccessible.':`Échec de l’authentification (${e.message}).`);}}
 start();
