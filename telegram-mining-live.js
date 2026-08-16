@@ -80,13 +80,12 @@
   }
 
   function installClaimRefresh() {
-    const button = document.getElementById('claimMining');
-    if (!button || button.__mmLiveRefreshBound) return;
-    button.__mmLiveRefreshBound = true;
-    button.addEventListener('click', () => {
+    if (window.__mmLiveClaimRefreshBound) return;
+    window.__mmLiveClaimRefreshBound = true;
+    window.addEventListener('make-money-balance-updated', () => {
       window.setTimeout(() => {
         if (typeof window.loadMiningModules === 'function') window.loadMiningModules();
-      }, 700);
+      }, 100);
     });
   }
 
