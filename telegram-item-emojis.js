@@ -22,6 +22,7 @@
     root.querySelectorAll('.catalog-item').forEach(card => setIcon(card.querySelector('.item-icon'), emojiFor('', card.querySelector('strong')?.textContent || '')));
     root.querySelectorAll('.roll-item').forEach(card => setIcon(card.querySelector('span'), emojiFor('', card.querySelector('strong')?.textContent || '')));
     root.querySelectorAll('.case-item-preview').forEach(card => setIcon(card.querySelector('span'), emojiFor('', card.querySelector('strong')?.textContent || '')));
+    root.querySelectorAll('.home-item-card').forEach(card => setIcon(card.querySelector('.item-visual'), emojiFor('', card.querySelector('strong')?.textContent || '')));
   }
   const observer = new MutationObserver(() => replaceItemIcons());
   const start = () => { replaceItemIcons(); observer.observe(document.body, { subtree: true, childList: true }); };
