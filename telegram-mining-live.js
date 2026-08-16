@@ -84,7 +84,8 @@
     window.__mmLiveClaimRefreshBound = true;
     window.addEventListener('make-money-balance-updated', () => {
       window.setTimeout(() => {
-        if (typeof window.loadMiningModules === 'function') window.loadMiningModules();
+        const miningPage = document.getElementById('mining');
+        if (miningPage?.hidden === false && typeof window.loadMiningModules === 'function') window.loadMiningModules();
       }, 100);
     });
   }
