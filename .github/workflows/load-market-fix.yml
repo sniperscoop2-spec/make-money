@@ -1,0 +1,33 @@
+name: Load market UI fix
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load market UI fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          tag='<script src="market-ui-fix.js"></script>'
+          if tag not in s:
+              marker='<script src="popup.js"></script>'
+              if marker in s:
+                  s=s.replace(marker, marker+'\n'+tag, 1)
+              else:
+                  s=s.replace('</body>', tag+'\n</body>', 1)
+              p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Load crypto market UI fix'
+          git push
