@@ -3,8 +3,13 @@
   const ID='marketQuickHoldings';
   const STYLE='marketQuickHoldingsStyle';
   const money=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:4});
-  function getAssets(){return Array.isArray(window.MARKET_ASSETS)?window.MARKET_ASSETS:(typeof MARKET_ASSETS!=='undefined'?MARKET_ASSETS:[]);}
-  function getState(){return window.state&&window.state.market?window.state.market:null;}
+
+  function getAssets(){
+    try{return Array.isArray(MARKET_ASSETS)?MARKET_ASSETS:[];}catch(e){return [];}
+  }
+  function getMarket(){
+    try{return state&&state.market?state.market:null;}catch(e){return null;}
+  }
   function installStyle(){
     if(document.getElementById(STYLE))return;
     const s=document.createElement('style');s.id=STYLE;
@@ -17,40 +22,62 @@
     if(!screen||!summary)return;
     installStyle();
     let panel=document.getElementById(ID);
-    if(!panel){panel=document.createElement('section');panel.id=ID;summary.insertAdjacentElement('afterend',panel);}
-    const market=getState();const assets=getAssets();
+    if(!panel){
+      panel=document.createElement('section');
+      panel.id=ID;
+      summary.insertAdjacentElement('afterend',panel);
+    }
+    const market=getMarket();
+    const assets=getAssets();
     if(!market||!assets.length){panel.hidden=true;return;}
+
     const owned=assets.filter(a=>Number(market.holdings?.[a.symbol]||0)>0);
     if(!owned.length){panel.hidden=true;panel.replaceChildren();return;}
+
     panel.hidden=false;
     panel.innerHTML='<div class="mqh-head"><strong>Your Crypto</strong><small>Quick sell</small></div><div class="mqh-list"></div>';
     const list=panel.querySelector('.mqh-list');
+
     for(const a of owned){
-      const qty=Number(market.holdings[a.symbol]||0),price=Number(market.prices?.[a.symbol]||a.base||0),value=qty*price;
-      const row=document.createElement('div');row.className='mqh-row';
+      const qty=Number(market.holdings?.[a.symbol]||0);
+      const price=Number(market.prices?.[a.symbol]||a.base||0);
+      const value=qty*price;
+      const row=document.createElement('div');
+      row.className='mqh-row';
       row.innerHTML=`<span class="mqh-icon">${a.icon||'🪙'}</span><span class="mqh-info"><strong>${a.name}</strong><small>${a.symbol} · ${money(qty)} owned</small></span><span class="mqh-value"><strong>${money(value)} MM</strong><small>current value</small></span>`;
-      const btn=document.createElement('button');btn.type='button';btn.className='mqh-sell';btn.textContent='Sell All';
-      btn.onclick=()=>{
-        const input=document.getElementById('marketAmountInput');
-        if(!input||typeof window.marketSell!=='function')return;
-        market.selected=a.symbol;
-        const current=Number(market.prices?.[a.symbol]||a.base||0)*Number(market.holdings?.[a.symbol]||0);
-        input.value=String(Math.ceil(current));
-        if(typeof window.renderMarket==='function')window.renderMarket();
-        window.marketSell();
-      };
-      row.append(btn);list.append(row);
+
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='mqh-sell';
+      btn.textContent='Sell All';
+      btn.addEventListener('click',()=>{
+        try{
+          const input=document.getElementById('marketAmountInput');
+          if(!input||typeof marketSell!=='function')return;
+          state.market.selected=a.symbol;
+          const latestQty=Number(state.market.holdings?.[a.symbol]||0);
+          const latestPrice=Number(state.market.prices?.[a.symbol]||a.base||0);
+          input.value=String(Math.floor(latestQty*latestPrice));
+          marketSell();
+          setTimeout(render,100);
+        }catch(e){console.error('Quick sell error:',e);}
+      });
+      row.append(btn);
+      list.append(row);
     }
   }
+
   function hook(){
+    installStyle();
     render();
-    if(typeof window.renderMarket==='function'&&!window.__marketQuickHoldingsHooked){
-      const original=window.renderMarket;
-      window.renderMarket=function(){const r=original.apply(this,arguments);try{render();}catch{}return r;};
-      window.__marketQuickHoldingsHooked=true;
-    }
-    window.addEventListener('make-money-balance-updated',render);
-    setInterval(()=>{if(document.getElementById('marketScreen')?.classList.contains('active'))render();},2000);
+    setInterval(()=>{
+      if(document.getElementById('marketScreen')?.classList.contains('active'))render();
+    },1000);
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,300),{once:true});else setTimeout(hook,300);
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(hook,500),{once:true});
+  }else{
+    setTimeout(hook,500);
+  }
 })();
