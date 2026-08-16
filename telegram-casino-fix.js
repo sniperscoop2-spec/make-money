@@ -66,3 +66,33 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
   else install();
 })();
+
+/* Inventory UI fixes: secure loading label + catalog sorted by ascending sell value. */
+(function(){
+  const installInventoryFix=()=>{
+    const status=document.getElementById('inventoryStatus');
+    if(status)status.textContent='Secure inventory';
+
+    if(typeof window.renderCatalog==='function' && !window.__mmCatalogSorted){
+      const originalRenderCatalog=window.renderCatalog;
+      window.renderCatalog=function(){
+        if(Array.isArray(window.caseCatalog)){
+          window.caseCatalog.sort((a,b)=>Number(a?.sell_value||0)-Number(b?.sell_value||0));
+        }
+        return originalRenderCatalog();
+      };
+      window.__mmCatalogSorted=true;
+    }
+  };
+
+  const run=()=>{
+    installInventoryFix();
+    const observer=new MutationObserver(installInventoryFix);
+    observer.observe(document.body,{childList:true,subtree:true});
+    window.addEventListener('make-money-authenticated',installInventoryFix);
+    window.addEventListener('make-money-inventory-updated',installInventoryFix);
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+})();
