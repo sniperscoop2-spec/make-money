@@ -1,6 +1,6 @@
 const MM_BALANCE_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-balance';
 let mmBalanceTimer=null,mmBalanceBusy=false;
-const mmBalanceFormat=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:4});
+const mmBalanceFormat=v=>Number(v||0).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
 function mmRenderBalance(value){
   const next=Number(value||0);
   const changed=Math.abs(next-Number(window.mmBalance||0))>1e-9;
