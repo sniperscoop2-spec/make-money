@@ -1,0 +1,18 @@
+/* Final layout guard for Telegram home dashboard. */
+.home-dashboard{width:100%!important;box-sizing:border-box!important}
+.home-assets{width:100%!important;box-sizing:border-box!important}
+.home-assets-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;gap:12px!important}
+.home-assets-title{min-width:0!important;display:block!important;text-align:left!important}
+.home-assets-title small,.home-assets-title strong{display:block!important;width:auto!important;line-height:1.2!important;white-space:normal!important}
+.home-assets-title small{margin:0!important}
+.home-assets-title strong{margin:4px 0 0!important;font-size:18px!important}
+.home-assets-income{min-width:max-content!important;display:block!important;text-align:right!important}
+.home-assets-income small,.home-assets-income strong{display:block!important;line-height:1.2!important}
+.home-assets-income small{margin:0!important}
+.home-assets-income strong{margin:3px 0 0!important;font-size:15px!important}
+.home-items{width:100%!important;box-sizing:border-box!important}
+.home-items-head{display:flex!important;width:100%!important;justify-content:space-between!important;align-items:center!important;gap:10px!important}
+.home-items-head>strong{display:block!important;flex:1 1 auto!important;min-width:0!important;white-space:nowrap!important}
+.home-items-head>button{display:block!important;flex:0 0 auto!important;width:auto!important;margin:0!important;white-space:nowrap!important}
+.home-item-grid{width:100%!important;box-sizing:border-box!important}
+@media(max-width:380px){.home-assets{padding:14px!important}.home-assets-head{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important}.home-assets-title strong{font-size:16px!important}.home-assets-income strong{font-size:14px!important}.home-items-head>button{padding:7px 9px!important}}
