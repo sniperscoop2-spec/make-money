@@ -6,7 +6,11 @@
 #homeAssetList.count-2 .home-asset-row,#homeAssetList.count-3 .home-asset-row,#homeAssetList.has-more .home-asset-row{flex-basis:calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important}
 .property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button.claim-cooldown{background:#1f5a3d!important;color:#8ab89f!important;opacity:1!important;cursor:not-allowed!important}.property-row.owned button.claim-ready{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:pointer!important}
 html[data-mm-page="home"] .app-header{transform:none!important}
-/* No central decorative logo/title on Telegram home. */
 .app::before{display:none!important;content:none!important}
-.app-brand-logo-wrap{display:none!important}
+/* Top title: keep it inside the Telegram safe area and give the native Telegram controls their own space. */
+.app{padding-top:max(6px,calc(var(--mm-telegram-top-safe,0px) + 4px))!important}
+.app{display:flex!important;flex-direction:column!important}
+.app-brand-logo-wrap{display:flex!important;order:-1!important;width:100%!important;min-height:34px!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;margin:0 0 12px!important;padding:0!important}
+.app-brand-logo-wrap::before{content:'Make Money';display:block!important;font-family:Montserrat,Inter,system-ui,sans-serif!important;font-size:27px!important;line-height:1!important;font-weight:800!important;letter-spacing:-.035em!important;color:#f5f7fb!important;text-align:center!important;white-space:nowrap!important}
 .app-brand-logo{display:none!important}
+@media(max-width:380px){.app{padding-top:max(4px,calc(var(--mm-telegram-top-safe,0px) + 2px))!important}.app-brand-logo-wrap{min-height:31px!important;margin-bottom:10px!important}.app-brand-logo-wrap::before{font-size:24px!important}}
