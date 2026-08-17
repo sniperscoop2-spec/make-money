@@ -67,11 +67,34 @@
     }
   }
 
+  function formatRankingBalances(){
+    const list=document.getElementById('rankingList');
+    if(!list)return;
+    list.querySelectorAll('.rank-row .coins').forEach(el=>{
+      const raw=String(el.textContent||'').trim();
+      const numeric=Number(raw.replace(/,/g,''));
+      if(!Number.isFinite(numeric))return;
+      const formatted=numeric.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1});
+      if(raw!==formatted)el.textContent=formatted;
+    });
+  }
+
+  function hookRankingFormatting(){
+    const list=document.getElementById('rankingList');
+    if(!list||list.dataset.balanceFormatObserver==='1')return;
+    list.dataset.balanceFormatObserver='1';
+    const observer=new MutationObserver(()=>formatRankingBalances());
+    observer.observe(list,{childList:true,subtree:true,characterData:true});
+    formatRankingBalances();
+  }
+
   function hook(){
     installStyle();
     render();
+    hookRankingFormatting();
     setInterval(()=>{
       if(document.getElementById('marketScreen')?.classList.contains('active'))render();
+      formatRankingBalances();
     },1000);
   }
 
