@@ -8,4 +8,4 @@
 /* Keep the YOUR ASSETS box at its original vertical position. */
 #homeDashboard{margin-top:-26px!important}
 /* Only the profile photo and balance are repositioned; the dashboard itself never moves. */
-html[data-mm-page="home"] .app-header{transform:translateY(-30px)}
+html[data-mm-page="home"] .app-header{transform:translateY(-120px)!important}
