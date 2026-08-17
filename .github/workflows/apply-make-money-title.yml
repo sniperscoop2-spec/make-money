@@ -1,0 +1,67 @@
+name: Apply Make Money title
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: ${{ startsWith(github.event.head_commit.message, 'chore: add Make Money title') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch title
+        shell: python
+        run: |
+          from pathlib import Path
+
+          index = Path('index.html')
+          css = Path('popup.css')
+          html = index.read_text(encoding='utf-8')
+          styles = css.read_text(encoding='utf-8')
+
+          marker = '<div class="app">'
+          title = '<div class="top-app-title" aria-label="MAKE MONEY">MAKE MONEY</div>\n\n'
+          if 'class="top-app-title"' not in html:
+              if marker not in html:
+                  raise SystemExit('FAIL: app root marker not found')
+              html = html.replace(marker, title + marker, 1)
+
+          css_marker = '.app{min-height:620px;display:flex;flex-direction:column}'
+          css_rule = '.top-app-title{min-height:58px;display:flex;align-items:center;justify-content:center;padding:10px 14px 8px;background:#0d131e;color:#f7f9fc;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-size:30px;line-height:1;letter-spacing:2px;text-align:center;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+          if '.top-app-title{' not in styles:
+              if css_marker not in styles:
+                  raise SystemExit('FAIL: CSS app marker not found')
+              styles = styles.replace(css_marker, css_marker + css_rule, 1)
+
+          index.write_text(html, encoding='utf-8')
+          css.write_text(styles, encoding='utf-8')
+
+      - name: Structural and security tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f popup.css
+          test -f telegram-app.js
+          grep -q 'class="top-app-title"' index.html
+          grep -q 'font-family:Impact' popup.css
+          ! grep -RIn --exclude-dir=.git -E 'service_role|SUPABASE_SERVICE_ROLE_KEY|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY-----' .
+          ! grep -RIn --exclude-dir=.git -E '<script[^>]+src="http://|href="http://' index.html popup.css telegram-app.js
+          node --check telegram-app.js
+
+      - name: Commit patched files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/apply-make-money-title.yml
+          git add index.html popup.css
+          git commit -m 'feat: add Make Money title and harden checks'
+          git push
