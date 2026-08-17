@@ -5,5 +5,5 @@
 #homeAssetList.count-1 .home-asset-row{flex-basis:100%!important;width:100%!important;max-width:100%!important}
 #homeAssetList.count-2 .home-asset-row,#homeAssetList.count-3 .home-asset-row,#homeAssetList.has-more .home-asset-row{flex-basis:calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important}
 .property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button.claim-cooldown{background:#1f5a3d!important;color:#8ab89f!important;opacity:1!important;cursor:not-allowed!important}.property-row.owned button.claim-ready{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:pointer!important}
-/* Home screen vertical positioning: move the dashboard slightly lower without changing its internal layout. */
-#homeDashboard{margin-top:12px!important}
+/* Home screen vertical positioning: move the dashboard lower without changing its internal layout. */
+#homeDashboard{margin-top:32px!important}
