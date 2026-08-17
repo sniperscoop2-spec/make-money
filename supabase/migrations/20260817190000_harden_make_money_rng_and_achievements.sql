@@ -1,0 +1,16 @@
+begin;
+create extension if not exists pgcrypto;
+create or replace function public.make_money_secure_random_int(p_max integer)
+returns integer language plpgsql volatile security invoker set search_path to 'public','pg_temp' as $$
+declare b bytea; v bigint; lim bigint;
+begin if p_max is null or p_max<=0 or p_max>2147483647 then raise exception 'invalid_random_bound'; end if; lim:=floor(4294967296::numeric/p_max)::bigint*p_max; loop b:=extensions.gen_random_bytes(4); v:=(get_byte(b,0)::bigint<<24)+(get_byte(b,1)::bigint<<16)+(get_byte(b,2)::bigint<<8)+get_byte(b,3)::bigint; exit when v<lim; end loop; return mod(v,p_max)::integer; end; $$;
+create or replace function public.make_money_secure_random_fraction()
+returns numeric language plpgsql volatile security invoker set search_path to 'public','pg_temp' as $$
+declare b bytea; begin b:=extensions.gen_random_bytes(4); return ((get_byte(b,0)::numeric*16777216)+(get_byte(b,1)::numeric*65536)+(get_byte(b,2)::numeric*256)+get_byte(b,3)::numeric)/4294967296::numeric; end; $$;
+revoke all on function public.make_money_secure_random_int(integer) from public,anon,authenticated;
+revoke all on function public.make_money_secure_random_fraction() from public,anon,authenticated;
+do $$ declare d text; begin select pg_get_functiondef(p.oid) into d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='make_money_casino_draw_card' and pg_get_function_identity_arguments(p.oid)='p_cards jsonb'; d:=replace(d,'r:=floor(random()*13)::int+1;','r:=public.make_money_secure_random_int(13)+1;'); d:=replace(d,'s:=floor(random()*4)::int;','s:=public.make_money_secure_random_int(4);'); execute d; end $$;
+do $$ declare d text; begin select pg_get_functiondef(p.oid) into d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='make_money_case_open' and pg_get_function_identity_arguments(p.oid)='p_session_hash text, p_case_id text, p_operation_key text'; d:=replace(d,'v_r=random();','v_r:=public.make_money_secure_random_fraction();'); execute d; end $$;
+do $$ declare d text; begin select pg_get_functiondef(p.oid) into d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='make_money_casino_slots' and pg_get_function_identity_arguments(p.oid)='p_session_hash text, p_bet numeric, p_operation_key text'; d:=replace(d,'a:=floor(random()*100)::int;c:=floor(random()*100)::int;d:=floor(random()*100)::int;','a:=public.make_money_secure_random_int(100);c:=public.make_money_secure_random_int(100);d:=public.make_money_secure_random_int(100);'); execute d; end $$;
+do $$ declare d text; begin select pg_get_functiondef(p.oid) into d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='make_money_get_achievements' and pg_get_function_identity_arguments(p.oid)='p_session_hash text'; d:=replace(d,'when ''first_casino'' then exists(select 1 from make_money_casino_spins s where s.player_id=v_player)','when ''first_casino'' then (exists(select 1 from make_money_casino_spins s where s.player_id=v_player) or exists(select 1 from make_money_casino_slots_spins s where s.player_id=v_player) or exists(select 1 from make_money_casino_blackjack_rounds b where b.player_id=v_player))'); execute d; end $$;
+commit;
