@@ -28,6 +28,11 @@ jobs:
               else:
                   html = html.replace('</body>', tag + '\n</body>', 1)
 
+          # The old logo asset was intentionally removed. Remove stale references
+          # so the browser never renders broken-image placeholders.
+          html = html.replace('    <div class="auth-logo-large"><img src="icons/make-money-logo.png" alt="Make Money"></div>\n', '')
+          html = html.replace('      <div class="brand-icon"><img src="icons/make-money-logo.png" alt="Make Money"></div>\n      ', '')
+
           # Make Money title: plain text, Impact-style fallback, always above the app header.
           marker = '<div class="app">'
           title = '<div class="top-app-title" aria-label="MAKE MONEY">MAKE MONEY</div>\n\n'
@@ -47,7 +52,7 @@ jobs:
           css.write_text(styles, encoding='utf-8')
           PY
 
-      - name: Structural and security tests
+      - name: Structural, security and syntax tests
         run: |
           set -euo pipefail
           test -f index.html
@@ -55,14 +60,26 @@ jobs:
           test -f telegram-app.js
           grep -q 'class="top-app-title"' index.html
           grep -q 'font-family:Impact' popup.css
+          ! grep -q 'icons/make-money-logo.png' index.html
           ! grep -RIn --exclude-dir=.git -E 'service_role|SUPABASE_SERVICE_ROLE_KEY|sk-[A-Za-z0-9]{20,}|-----BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY-----' .
           ! grep -RIn --exclude-dir=.git -E '<script[^>]+src="http://|href="http://' index.html popup.css telegram-app.js
           node --check telegram-app.js
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+
+          class Parser(HTMLParser):
+              pass
+
+          Parser().feed(Path('index.html').read_text(encoding='utf-8'))
+          print('HTML parser: OK')
+          print('Title count:', Path('index.html').read_text(encoding='utf-8').count('class="top-app-title"'))
+          PY
 
       - name: Commit patch
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html popup.css
-          git diff --cached --quiet || git commit -m 'feat: add Make Money title and harden checks'
+          git diff --cached --quiet || git commit -m 'fix: remove stale logo references and verify title'
           git push
