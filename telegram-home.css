@@ -9,3 +9,5 @@
 html[data-mm-page="home"] .app-header{transform:none!important}
 /* Make Money PNG brand: visible immediately below Telegram's native header, without changing the native header, balance, or dashboard logic. */
 .app-brand-logo{display:block!important;width:min(300px,78vw)!important;height:auto!important;max-height:86px!important;object-fit:contain!important;object-position:center!important;margin:2px auto 18px!important;position:relative!important;z-index:4!important;opacity:1!important;visibility:visible!important;filter:none!important;pointer-events:none!important}.app-brand-logo-wrap{display:block!important;position:relative!important;z-index:4!important;text-align:center!important;line-height:0!important}
+/* Explicitly lock the Telegram home brand to the existing Make Money crypto logo asset. */
+html[data-mm-page="home"] .app-brand-logo{content:url("icons/make-money-logo.png?v=20260817-3")!important}
