@@ -5,9 +5,9 @@
 #homeAssetList.count-1 .home-asset-row{flex-basis:100%!important;width:100%!important;max-width:100%!important}
 #homeAssetList.count-2 .home-asset-row,#homeAssetList.count-3 .home-asset-row,#homeAssetList.has-more .home-asset-row{flex-basis:calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important}
 .property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button.claim-cooldown{background:#1f5a3d!important;color:#8ab89f!important;opacity:1!important;cursor:not-allowed!important}.property-row.owned button.claim-ready{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:pointer!important}
-/* Keep the YOUR ASSETS box at its original vertical position. */
-#homeDashboard{margin-top:-26px!important}
+/* Keep Telegram native controls/header in place. Only content starting at YOUR ASSETS is lowered. */
+#homeDashboard{margin-top:54px!important}
 /* Only the profile photo and balance are repositioned; the dashboard itself never moves. */
 html[data-mm-page="home"] .app-header{transform:translateY(0)!important}
-/* Telegram native controls occupy the top of the viewport. Move the complete app content down equally; do not alter internal layout. */
+/* Telegram Mini App safe-area hardening: respect the native top area without shifting the internal header. */
 .app{padding-top:58px!important}
