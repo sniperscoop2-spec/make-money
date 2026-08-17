@@ -1,0 +1,5 @@
+/* Safe-area hardening for Telegram Mini App content. */
+:root{--mm-telegram-top-safe:max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px),var(--tg-content-safe-area-inset-top,0px));--mm-telegram-bottom-safe:max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px),var(--tg-content-safe-area-inset-bottom,0px))}
+body{padding-top:calc(var(--mm-telegram-top-safe) + 8px)!important;padding-bottom:calc(var(--mm-telegram-bottom-safe) + 8px)!important}
+.app{padding-top:18px!important}
+@media(max-width:380px){.app{padding-top:12px!important}}
