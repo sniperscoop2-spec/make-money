@@ -18,3 +18,4 @@ window.addEventListener('make-money-authenticated',()=>{navBindInventoryNotifica
 document.addEventListener('click',e=>{if(e.target?.id!=='caseClose')return;requestAnimationFrame(()=>{if(typeof window.mmNavigate==='function')window.mmNavigate('cases');else navSetPage('cases');});},true);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',navInit,{once:true});else navInit();window.mmNavigate=navSetPage;
 (function loadRealtimeBalanceScript(){if(document.getElementById('mmBalanceScript'))return;const s=document.createElement('script');s.id='mmBalanceScript';s.src='telegram-balance.js?v=20260817-1';s.async=false;document.head.appendChild(s);})();
+(function loadBalanceAnimationScript(){if(document.getElementById('mmBalanceAnimationScript'))return;const s=document.createElement('script');s.id='mmBalanceAnimationScript';s.src='telegram-balance-animation.js?v=20260817-1';s.async=false;document.head.appendChild(s);})();
