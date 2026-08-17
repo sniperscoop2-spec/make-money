@@ -88,13 +88,77 @@
     formatRankingBalances();
   }
 
+  // Jobs are paid from elapsed time. This override deliberately removes the
+  // daily ceiling while keeping the existing hourly earning rate unchanged.
+  function installUnlimitedSalary(){
+    if(typeof window.processJobPay!=='function'||window.processJobPay.__unlimitedSalary)return;
+    const unlimitedSalaryPay=function(){
+      try{
+        if(typeof resetJobDay==='function')resetJobDay();
+        if(!state?.job)return false;
+        const job=typeof getJob==='function'?getJob(state.job):null;
+        if(!job||typeof jobCanWork==='function'&&!jobCanWork(job))return false;
+        const now=Date.now();
+        const minutes=Math.floor(Math.max(0,now-Number(state.lastJobPay||now))/60000);
+        if(minutes<=0)return false;
+        state.lastJobPay=Number(state.lastJobPay||now)+minutes*60000;
+        state.jobRemainder=Number(state.jobRemainder||0)+minutes*jobMinuteRate(job);
+        const pay=Math.floor(state.jobRemainder);
+        if(pay<=0)return false;
+        state.jobRemainder-=pay;
+        state.jobToday=Number(state.jobToday||0)+pay;
+        state.balance=Number(state.balance||0)+pay;
+        return true;
+      }catch(e){
+        console.error('Unlimited salary error:',e);
+        return false;
+      }
+    };
+    unlimitedSalaryPay.__unlimitedSalary=true;
+    window.processJobPay=unlimitedSalaryPay;
+
+    if(typeof window.renderJobs==='function'&&!window.renderJobs.__unlimitedSalaryUI){
+      const originalRenderJobs=window.renderJobs;
+      const unlimitedRenderJobs=function(){
+        originalRenderJobs();
+        try{
+          const active=state?.job&&typeof getJob==='function'?getJob(state.job):null;
+          const next=document.getElementById('jobNextPay');
+          const today=document.getElementById('jobEarnedToday');
+          const pay=document.getElementById('activeJobPay');
+          if(active){
+            if(next)next.textContent='Next salary check in 1 min';
+            if(today)today.textContent=`${Number(state.jobToday||0).toLocaleString('en-US')} earned today`;
+            if(pay)pay.textContent=`${jobMinuteRate(active).toFixed(2)} coins / min · Unlimited salary`;
+          }
+          document.querySelectorAll('#jobsList .job-main small').forEach(el=>{
+            const text=String(el.textContent||'');
+            const match=text.match(/([\d,.]+)\s*coins\/day/);
+            if(match)el.textContent=`${jobMinuteRate(active||getJob(el.closest('[data-job]')?.dataset.job)).toFixed(2)} coins / min · Unlimited`;
+          });
+          document.querySelectorAll('#trainingList .training-main small').forEach(el=>{
+            el.textContent=String(el.textContent||'').replace(/\s*·\s*[\d,.]+\s*coins\/day\s*$/,' · Unlimited salary');
+          });
+        }catch(e){console.warn('Unlimited salary UI update failed:',e);}
+      };
+      unlimitedRenderJobs.__unlimitedSalaryUI=true;
+      window.renderJobs=unlimitedRenderJobs;
+    }
+  }
+
   function hook(){
     installStyle();
     render();
     hookRankingFormatting();
+    installUnlimitedSalary();
     setInterval(()=>{
       if(document.getElementById('marketScreen')?.classList.contains('active'))render();
       formatRankingBalances();
+      installUnlimitedSalary();
+      if(document.getElementById('jobsScreen')?.classList.contains('active')&&typeof renderJobs==='function'){
+        // Keep the visible salary state consistent without changing the earning logic.
+        try{renderJobs();}catch(e){console.warn('Jobs refresh failed:',e);}
+      }
     },1000);
   }
 
