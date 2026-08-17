@@ -11,5 +11,5 @@
 html[data-mm-page="home"] .app-header{transform:translateY(0)!important}
 /* Telegram Mini App safe-area hardening: respect the native top area without shifting the internal header. */
 .app{padding-top:58px!important}
-/* Final alignment: move only the dashboard upward so YOUR ASSETS sits below the profile/balance area while remaining clear of Telegram native controls. */
-html[data-mm-page="home"] #homeDashboard{margin-top:-232px!important}
+/* Final alignment: place YOUR ASSETS cleanly below the Telegram profile/balance area. Native controls and profile/balance stay untouched. */
+html[data-mm-page="home"] #homeDashboard{margin-top:-132px!important}
