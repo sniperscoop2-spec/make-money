@@ -9,3 +9,5 @@
 #homeDashboard{margin-top:-26px!important}
 /* Only the profile photo and balance are repositioned; the dashboard itself never moves. */
 html[data-mm-page="home"] .app-header{transform:translateY(0)!important}
+/* Telegram native controls occupy the top of the viewport. Move the complete app content down equally; do not alter internal layout. */
+.app{padding-top:58px!important}
