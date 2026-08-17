@@ -11,6 +11,7 @@ button{font:inherit}
 
 
 
+
 .app{min-height:620px;display:flex;flex-direction:column}
 .header{min-height:74px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#0d131e;border-bottom:1px solid var(--border)}
 .brand{display:flex;align-items:center;gap:10px}.brand-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--panel2);font-size:22px}
