@@ -1,0 +1,39 @@
+name: Adjust home spacing
+
+on:
+  push:
+    branches:
+      - telegram-mini-app
+
+permissions:
+  contents: write
+
+jobs:
+  adjust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: telegram-mini-app
+          fetch-depth: 0
+      - name: Move app content slightly down
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('popup.css')
+          s = p.read_text()
+          old = 'main{flex:1;padding:20px 18px}'
+          new = 'main{flex:1;padding:30px 18px}'
+          if old in s:
+              p.write_text(s.replace(old, new, 1))
+          elif new not in s:
+              raise SystemExit('Expected main spacing rule not found')
+          PY
+      - name: Commit spacing change and remove temporary workflow
+        run: |
+          git config user.name "sniperscoop2-spec"
+          git config user.email "sniperscoop2@gmail.com"
+          git add popup.css
+          git rm .github/workflows/adjust-home-spacing.yml
+          git commit -m "fix: move mini app content slightly down"
+          git push origin telegram-mini-app
