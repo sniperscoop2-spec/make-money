@@ -1,4 +1,4 @@
-const MM_BALANCE_ANIMATION_MS=3000;
+const MM_BALANCE_ANIMATION_MS=1000;
 let mmBalanceAnimationTimer=null;
 let mmLastAnimatedBalance=Number(window.mmBalance||0);
 
@@ -7,9 +7,9 @@ function mmInstallBalanceAnimationStyle(){
   const style=document.createElement('style');
   style.id='mmBalanceAnimationStyle';
   style.textContent=`
-    .mm-balance-value{transition:color .25s ease,transform .25s ease,text-shadow .25s ease;}
-    .mm-balance-value.mm-balance-up{color:#63e69a!important;text-shadow:0 0 14px rgba(99,230,154,.45);animation:mmBalanceUp .55s ease-out;}
-    .mm-balance-value.mm-balance-down{color:#ff6b6b!important;text-shadow:0 0 14px rgba(255,107,107,.42);animation:mmBalanceDown .55s ease-out;}
+    .mm-balance-value{transition:color .2s ease,transform .2s ease,text-shadow .2s ease;}
+    .mm-balance-value.mm-balance-up{color:#63e69a!important;text-shadow:0 0 14px rgba(99,230,154,.45);animation:mmBalanceUp .45s ease-out;}
+    .mm-balance-value.mm-balance-down{color:#ff6b6b!important;text-shadow:0 0 14px rgba(255,107,107,.42);animation:mmBalanceDown .45s ease-out;}
     @keyframes mmBalanceUp{0%{transform:scale(1)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
     @keyframes mmBalanceDown{0%{transform:scale(1)}35%{transform:scale(.94)}65%{transform:scale(1.03)}100%{transform:scale(1)}}
   `;
