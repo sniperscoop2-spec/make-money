@@ -5,12 +5,8 @@
 #homeAssetList.count-1 .home-asset-row{flex-basis:100%!important;width:100%!important;max-width:100%!important}
 #homeAssetList.count-2 .home-asset-row,#homeAssetList.count-3 .home-asset-row,#homeAssetList.has-more .home-asset-row{flex-basis:calc((100% - 8px)/2)!important;width:calc((100% - 8px)/2)!important;max-width:calc((100% - 8px)/2)!important}
 .property-row.owned button{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button:disabled{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:default}.property-row.owned button.claim-cooldown{background:#1f5a3d!important;color:#8ab89f!important;opacity:1!important;cursor:not-allowed!important}.property-row.owned button.claim-ready{background:#63e69a!important;color:#07100b!important;opacity:1!important;cursor:pointer!important}
-/* Telegram native header/profile/balance stay untouched. Dashboard follows the header naturally. */
 html[data-mm-page="home"] .app-header{transform:none!important}
-/* Correct Make Money title: use the supplied title artwork, not the old crypto logo. */
+/* No central decorative logo/title on Telegram home. */
 .app::before{display:none!important;content:none!important}
-.app-brand-logo{display:block!important;width:min(410px,88vw)!important;height:auto!important;max-height:51px!important;object-fit:contain!important;object-position:center!important;margin:2px auto 18px!important;position:relative!important;z-index:4!important;opacity:1!important;visibility:visible!important;filter:none!important;pointer-events:none!important}
-.app-brand-logo-wrap{display:block!important;position:relative!important;z-index:4!important;text-align:center!important;line-height:0!important}
-html[data-mm-page="home"] .app-brand-logo{content:url("icons/make-money-title.svg?v=20260817-4")!important}
-/* Remove the central logo/title artwork from the Telegram home screen. */
 .app-brand-logo-wrap{display:none!important}
+.app-brand-logo{display:none!important}
