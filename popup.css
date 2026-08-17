@@ -7,7 +7,7 @@ button{font:inherit}
 .brand{display:flex;align-items:center;gap:10px}.brand-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--panel2);font-size:22px}
 .brand strong,.brand small{display:block}.brand strong{font-size:15px}.brand small{margin-top:3px;color:var(--muted);font-size:11px}
 .balance{padding:9px 12px;border:1px solid #3a3421;border-radius:20px;background:#17150e;color:var(--gold);font-size:14px}
-main{flex:1;padding:20px 18px}.screen{display:none}.screen.active{display:block}
+main{flex:1;padding:30px 18px}.screen{display:none}.screen.active{display:block}
 .hero{padding:8px 2px 18px}.eyebrow{color:var(--gold);font-size:11px;font-weight:bold;letter-spacing:1.5px}
 .hero h1,.mine-title h1{margin-top:6px;font-size:27px;line-height:1.1}.hero p,.mine-title p{margin-top:8px;color:var(--muted);font-size:12px;line-height:1.5}
 .main-card{width:100%;display:flex;align-items:center;gap:13px;padding:16px;margin-bottom:10px;border:1px solid var(--border);border-radius:17px;background:linear-gradient(135deg,#151e2d,#0f1622);color:var(--text);text-align:left;cursor:pointer;transition:.2s}
