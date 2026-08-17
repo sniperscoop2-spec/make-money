@@ -12,3 +12,5 @@ html[data-mm-page="home"] .app-header{transform:none!important}
 .app-brand-logo{display:block!important;width:min(410px,88vw)!important;height:auto!important;max-height:51px!important;object-fit:contain!important;object-position:center!important;margin:2px auto 18px!important;position:relative!important;z-index:4!important;opacity:1!important;visibility:visible!important;filter:none!important;pointer-events:none!important}
 .app-brand-logo-wrap{display:block!important;position:relative!important;z-index:4!important;text-align:center!important;line-height:0!important}
 html[data-mm-page="home"] .app-brand-logo{content:url("icons/make-money-title.svg?v=20260817-4")!important}
+/* Remove the central logo/title artwork from the Telegram home screen. */
+.app-brand-logo-wrap{display:none!important}
