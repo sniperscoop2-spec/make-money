@@ -2545,3 +2545,6 @@ input,select,textarea{
     transition-duration:.001ms !important;
   }
 }
+
+/* TELEGRAM_SAFE_AREA_V1 */
+html,body{padding-top:max(var(--tg-content-safe-area-inset-top,0px),env(safe-area-inset-top,0px));padding-bottom:max(var(--tg-content-safe-area-inset-bottom,0px),env(safe-area-inset-bottom,0px));padding-left:max(var(--tg-content-safe-area-inset-left,0px),env(safe-area-inset-left,0px));padding-right:max(var(--tg-content-safe-area-inset-right,0px),env(safe-area-inset-right,0px))}.app{min-height:calc(100dvh - var(--tg-content-safe-area-inset-top,0px) - var(--tg-content-safe-area-inset-bottom,0px))}
