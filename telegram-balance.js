@@ -12,14 +12,14 @@ function mmRenderBalance(value){
   if(changed)window.dispatchEvent(new CustomEvent('make-money-balance-updated',{detail:{balance:next}}));
 }
 async function mmRefreshBalance(){
-  if(mmBalanceBusy||!window.mmSessionToken)return;
+  if(mmBalanceBusy||!window.mmSessionToken||window.mmBalanceRealtimePaused)return;
   const expires=Number(window.mmSessionExpiresAt||0);
   if(expires&&Date.now()>=expires){if(mmBalanceTimer){clearInterval(mmBalanceTimer);mmBalanceTimer=null;}return;}
   mmBalanceBusy=true;
   try{
     const r=await fetch(MM_BALANCE_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${window.mmSessionToken}`},cache:'no-store'});
     const d=await r.json().catch(()=>null);
-    if(r.ok&&d?.ok)mmRenderBalance(d.balance);
+    if(r.ok&&d?.ok&&!window.mmBalanceRealtimePaused)mmRenderBalance(d.balance);
     else if(r.status===401){if(mmBalanceTimer){clearInterval(mmBalanceTimer);mmBalanceTimer=null;}}
   }catch{}
   finally{mmBalanceBusy=false;}
@@ -29,6 +29,7 @@ function mmStartBalanceRealtime(){
   mmRefreshBalance();
   mmBalanceTimer=setInterval(mmRefreshBalance,2000);
 }
+window.mmRefreshBalance=mmRefreshBalance;
 window.addEventListener('make-money-authenticated',mmStartBalanceRealtime);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')mmRefreshBalance();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!window.mmBalanceRealtimePaused)mmRefreshBalance();});
 if(window.mmSessionToken)mmStartBalanceRealtime();
