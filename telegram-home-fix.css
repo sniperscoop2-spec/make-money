@@ -22,6 +22,6 @@
 @keyframes mmVisibleTitleDollars{from{background-position:0 0}to{background-position:150px 84px}}
 @media(max-width:380px){.app{padding-top:max(6px,calc(var(--mm-telegram-top-safe,0px) + 6px))!important}.app::before{min-height:36px!important;margin-bottom:12px!important;font-size:29px!important;line-height:36px!important}}
 @media(prefers-reduced-motion:reduce){.app::before{animation:none!important}}
-/* Keep the existing profile/chat horizontal position; move both below Telegram's native top controls. */
-.home-profile-button{transform:translateY(170px)!important}
-#homeChatButton{transform:translateY(170px)!important}
+/* Keep the existing profile/chat horizontal position; place both clearly below Telegram's native controls. */
+.home-profile-button{transform:translateY(185px)!important}
+#homeChatButton{transform:translateY(185px)!important}
