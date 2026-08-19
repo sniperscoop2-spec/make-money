@@ -25,3 +25,5 @@
 /* Keep profile and public chat at the original horizontal location, align them with the Home balance, and lock both to the viewport so they never move on scroll. */
 .home-profile-button{position:fixed!important;top:21.1dvh!important;right:30px!important;left:auto!important;transform:none!important;z-index:30!important}
 #homeChatButton{position:fixed!important;top:21.1dvh!important;right:116px!important;left:auto!important;transform:none!important;z-index:30!important}
+/* Profile button removed from the Home UI; public chat remains unchanged. */
+#homeProfileButton{display:none!important;visibility:hidden!important;pointer-events:none!important}
