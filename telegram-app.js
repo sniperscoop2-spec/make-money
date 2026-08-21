@@ -9,6 +9,7 @@ const API_TIMEOUT_MS=15000;
 function fail(message){$('spinner').style.display='none';$('title').textContent='Connexion impossible';$('message').textContent=message;}
 function formatMM(value){return Number(value||0).toLocaleString('en-US',{maximumFractionDigits:4});}
 function setBalance(value){balance=Number(value||0);window.mmBalance=balance;$('balance').textContent=formatMM(balance);const hb=$('headerBalance');if(hb)hb.textContent=`${formatMM(balance)} MM`;window.dispatchEvent(new CustomEvent('make-money-balance-updated',{detail:{balance}}));}
+window.addEventListener('make-money-balance-updated',e=>{const b=Number(e?.detail?.balance);if(Number.isFinite(b))balance=b;if(document.body.dataset.mmPage==='jobs')renderJobs();});
 function randomOperationKey(){if(window.crypto?.randomUUID)return window.crypto.randomUUID().replace(/-/g,'');const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}
 function sessionValid(){return Boolean(sessionToken&&Date.now()<sessionExpiresAt);}
 async function apiFetch(url,options={},timeoutMs=API_TIMEOUT_MS){const controller=new AbortController();const timer=window.setTimeout(()=>controller.abort(),timeoutMs);try{return await fetch(url,{...options,signal:controller.signal,cache:'no-store'});}finally{window.clearTimeout(timer);}}

@@ -39,6 +39,16 @@
 .bj-card.dealt{animation:cardDeal .28s ease-out forwards}.bj-card.hidden-card{display:grid;place-items:center;background:linear-gradient(135deg,#183f2a,#0e1d15);color:#63e69a;font-size:24px}
 .bj-rank{align-self:flex-start}.bj-suit{align-self:flex-end;font-size:15px}.bj-rank.red,.bj-suit.red{color:#d8424d}
 .blackjack-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.blackjack-actions button{margin:0!important}.blackjack-actions button:first-child{background:#182230;color:#f5f7fb;border:1px solid #263142}
+#blackjackDouble,#blackjackSplit{background:#182230;color:#63e69a;border:1px solid #285d3d}
+#blackjackDouble:disabled,#blackjackSplit:disabled{display:none}
+.bj-split-hand{margin:-2px 0 12px;padding:12px;border-radius:14px;background:#0c121b;border:1px solid transparent;text-align:center;transition:background .15s,border-color .15s}
+.bj-split-hand.bj-hand-active{border-color:#285d3d;background:#101f17}
+.bj-split-hand small{color:#9da9ba;font-size:11px}
+.bj-split-hand strong{display:block;margin-top:6px;color:#63e69a;font-size:15px}
+.bj-split-hand .bj-cards{justify-content:center}
+#bjHand1Side.bj-hand-active{background:#101f17;border-radius:14px;box-shadow:0 0 0 1px #285d3d}
+.slot-auto-toggle{margin-top:8px!important;width:100%;background:#182230!important;color:#63e69a!important;border:1px solid #285d3d!important}
+.slot-auto-toggle[aria-pressed="true"]{background:#163323!important;color:#63e69a!important;border-color:#3a8054!important}
 @keyframes cardDeal{to{opacity:1;transform:translateY(0) rotate(0)}}
 .slot-machine{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;background:#0a1017;border:2px solid #263142;border-radius:18px;box-shadow:inset 0 0 25px #0008,0 12px 25px #0005}
 .slot-reel{height:82px;border-radius:12px;background:#f2f4f7;color:#111820;display:grid;place-items:center;font-size:37px;box-shadow:inset 0 -8px 0 #d5d9de;overflow:hidden}
