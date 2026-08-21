@@ -1,5 +1,5 @@
 const REAL_ESTATE_API='https://klvpeopoziausjvefaek.supabase.co/functions/v1/make-money-real-estate';
-let realEstateBusy=false,realEstateTimer=null,realEstateMarketTimer=null,realEstateItems=[];
+let realEstateBusy=false,realEstateTimer=null,realEstateMarketTimer=null,realEstateItems=[],reWasReady=false;
 const REAL_ESTATE_TIMEOUT_MS=15000;
 function reFormatMM(value){return Number(value||0).toLocaleString('en-US',{maximumFractionDigits:4});}
 function reSessionValid(){return Boolean(window.mmSessionToken&&Date.now()<Number(window.mmSessionExpiresAt||0));}
@@ -8,7 +8,7 @@ async function reFetch(options={},timeoutMs=REAL_ESTATE_TIMEOUT_MS){const contro
 function reSetBalance(value){const el=document.getElementById('balance');if(el)el.textContent=reFormatMM(value);window.mmBalance=Number(value||0);window.dispatchEvent(new CustomEvent('make-money-balance-updated',{detail:{balance:window.mmBalance}}));}
 function reClearTimer(){if(realEstateTimer){clearTimeout(realEstateTimer);realEstateTimer=null;}}
 function reMarketSchedule(){if(realEstateMarketTimer)clearTimeout(realEstateMarketTimer);realEstateMarketTimer=setTimeout(async()=>{if(reSessionValid()&&document.body.dataset.mmPage==='realEstate')await reLoad(false);else reMarketSchedule();},15000);}
-function reReadyState(){const ready=realEstateItems.some(item=>Number(item.owned_units||0)>0&&item.next_claim_at&&new Date(item.next_claim_at).getTime()<=Date.now());window.mmRealEstateReady=ready;return ready;}
+function reReadyState(){const ready=realEstateItems.some(item=>Number(item.owned_units||0)>0&&item.next_claim_at&&new Date(item.next_claim_at).getTime()<=Date.now());if(ready&&!reWasReady)window.mmToast?.({icon:'🏢',title:'Rent ready',message:'A property income is ready to collect.',tone:'success'});reWasReady=ready;window.mmRealEstateReady=ready;return ready;}
 function reSchedule(){reClearTimer();const dates=realEstateItems.map(x=>x.next_claim_at).filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);if(!dates.length){reReadyState();return;}const next=Math.min(...dates);realEstateTimer=setTimeout(()=>{reReadyState();reRender();},Math.max(1000,next-Date.now()+100));}
 function reCooldownText(next){if(!next)return 'Ready';const ms=new Date(next).getTime()-Date.now();if(!Number.isFinite(ms))return 'Unavailable';if(ms<=0)return 'Ready';const sec=Math.ceil(ms/1000),h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?`${h}h ${m}m ${s}s`:`${m}m ${s}s`;}
 function reStyleClaimButton(button,ready){button.classList.toggle('claim-ready',ready);button.classList.toggle('claim-cooldown',!ready);if(ready){button.style.setProperty('background','#63e69a','important');button.style.setProperty('color','#07100b','important');button.style.setProperty('opacity','1','important');button.style.setProperty('cursor','pointer','important');}else{button.style.setProperty('background','#1f5a3d','important');button.style.setProperty('color','#8ab89f','important');button.style.setProperty('opacity','1','important');button.style.setProperty('cursor','not-allowed','important');}}
